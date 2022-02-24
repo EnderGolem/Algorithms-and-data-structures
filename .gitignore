@@ -64,4 +64,5 @@ ipch/
 
 
 
-*vcxproj
+*.vcxproj
+*.vcxproj.filters
