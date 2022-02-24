@@ -11,9 +11,13 @@ using namespace std;
 int main()
 {
 	{
+		MyList<int> lst1{ 1,2 };
+		lst1.print_from_head();
 		MyList<int> lst{ 1,6,2,-3,4,-5,-4 , 6 };
+		lst.print_from_head();
 		cout << "Count_ positive: ";
-		cout << count_positive(lst) << '\n';
+		int x = count_positive(lst);
+		cout << x << '\n';
 		//int count,mx;
 		auto [mx, count] = count_maxim(lst);
 		cout << "Maxim and count: ";

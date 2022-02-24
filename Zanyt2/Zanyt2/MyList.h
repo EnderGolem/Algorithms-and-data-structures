@@ -20,7 +20,7 @@ private:
 	ListNode* head;
 	ListNode* tail;
 	/// <summary>
-	/// Узел для итератора
+	/// Узел для конца итератора
 	/// </summary>
 	ListNode* tail_end;
 	int sze;
@@ -50,6 +50,11 @@ public:
 			node = node->prev;
 			return *this;
 		}
+		my_list_itetator operator--(int) {
+			auto t = *this;
+			--node;
+			return t;
+		}
 		friend bool operator==(my_list_itetator v1, my_list_itetator v2) {
 			return v1.node == v2.node;
 		}
@@ -78,7 +83,7 @@ public:
 			this->push_back(x);
 		}
 		tail_end = new ListNode{ 1,nullptr,nullptr };
-		check_end();
+		
 	}
 	MyList(ListNode* node) : head(node)
 	{
@@ -94,7 +99,8 @@ public:
 			node = node->next;
 		tail = node;
 
-	}
+	}	
+	/// КК	
 	MyList(const MyList& lst) : head(nullptr), tail(nullptr)
 	{
 		tail_end = new ListNode{ 1 };
@@ -103,23 +109,14 @@ public:
 			this->push_back(x);
 
 	}
-	MyList(my_list_itetator begin, my_list_itetator end) : head(nullptr), tail(nullptr)
-	{
-		while (begin != end)
-		{
-			++begin;
-		}
-		tail_end = new ListNode{ 1 };
-		check_end();
-	}
+	
 	void push_back(T x)
 	{
 		if (head != nullptr)
 		{
 			auto node = new ListNode{ x,nullptr,tail };
 			tail->next = node;
-			tail = node;
-			
+			tail = node;			
 			sze++;
 		}
 		else
@@ -127,7 +124,6 @@ public:
 			auto node = new ListNode{ x, nullptr, nullptr };
 			head = node;
 			tail = node;
-
 			sze++;
 		}
 		check_end();
@@ -195,10 +191,8 @@ public:
 			head = head->next;
 			delete p;
 		}
-
 		delete head;
 		head = nullptr; tail = nullptr;
-
 		delete tail_end;
 	}
 
@@ -300,7 +294,7 @@ private:
 	}
 };
 
-int count_positive(const MyList<int>  lst)
+int count_positive(const MyList<int>  &lst)
 {
 	int pos = 0;
 	for (auto x : lst)
