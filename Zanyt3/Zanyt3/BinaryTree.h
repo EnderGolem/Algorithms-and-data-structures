@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <stack> 
 template<class  T>
 class  BinaryTree
 {
@@ -103,12 +104,40 @@ public:
 		printLKPAuxiliary(m_root);
 		std::cout << '\n';
 	}
+	/// <summary>
+	/// Вывод ПКЛ
+	/// </summary>
+	void printPKL()
+	{
+		if(m_root == nullptr)
+		{
+			std::cout << "null\n"; return;;
+		}
+		std::stack<Node*> stack;
+		auto top = m_root;
+		while (top != nullptr || !stack.empty())
+		{
+			if (!stack.empty())
+			{
+				top = stack.top();
+				stack.pop();
+				std::cout << top->data << " ";
+				top = top->left;
+			}
+			while (top != nullptr)
+			{
+				stack.push(top);
+				top = top->right;
+			}
+		}
+		std::cout << '\n';
+	}
 	/// Удаляет элемент по его значению
 	void erase(T data)
 	{
 		if (m_root == nullptr)
 		{
-			return ;
+			return;
 		}
 		auto current = m_root;
 		while (current != nullptr)
@@ -128,7 +157,7 @@ public:
 			}
 		}
 	}
-	
+
 private:
 	/// <summary>
 	/// Вывод ЛКП  дополнительная функция
@@ -173,14 +202,13 @@ private:
 
 			if (extremeNode->parent->right == current) //Проверка по какой стороне current  была потомком
 				extremeNode->parent->right = extremeNode;
-			if (extremeNode->parent->left == current) 
+			if (extremeNode->parent->left == current)
 				extremeNode->parent->left = extremeNode;
 
 			if (current->parent->right == extremeNode) //Проверка по какой стороне extremeNode  была потомком
 				current->parent->right = current;
 			if (current->parent->left == extremeNode)
 				current->parent->left = current;
-			this->printLKP();
 			deleteParentWithOneSon(current);
 		}
 	}

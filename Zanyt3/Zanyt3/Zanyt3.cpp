@@ -42,7 +42,7 @@ int main()
 		cout << "Test upper bound\n";
 		cout << bt.upperBound(15) << '\n';
 		cout << bt.upperBound(17) << '\n';
-		
+
 	}
 	{
 		BinaryTree<int> bt;
@@ -56,7 +56,20 @@ int main()
 		bt.printLKP();
 		bt.erase(10);
 		bt.printLKP();
-		
+
+	}
+	{
+		BinaryTree<int> bt;
+		bt.insert(5);
+		bt.insert(4);
+		bt.insert(10);
+		bt.insert(12);
+		bt.insert(7);
+		bt.insert(9);
+		bt.insert(8);
+		bt.printLKP();
+		bt.printPKL();
+
 	}
 	system("pause");
 }
