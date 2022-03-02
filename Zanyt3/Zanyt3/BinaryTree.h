@@ -41,20 +41,52 @@ public:
 			}
 		}
 	}
+	/// <summary>
+	/// Проверка на содержание в дереве
+	/// </summary>
 	bool contains(T data)
+	{
+	return data == 	generalBound(data, [](T x, T y)->T {return  x == y; });
+	}
+	T maxElement()
+	{
+		auto current = m_root;
+		while (current->right != nullptr)
+			current = current->right;
+		return  current->data;
+	}
+	T minElement()
+	{
+		auto current = m_root;
+		while (current->left != nullptr)
+			current = current->left;
+		return  current->data;
+	}
+	T lowerBound(T data)
+	{
+		return 	generalBound(data, [](T x, T y)->T {return x >= y; });	
+	}
+	T upperBound(T data)
+	{
+		return 	generalBound(data, [](T x, T y)->T {return x > y; });	
+	}
+	/// <summary>
+	/// Для сравнения по своему усмотрению
+	/// </summary>
+	/// <param name="compare">Функция сравнения</param>
+	T generalBound(T data, T (*compare)(T, T))
 	{
 		if (m_root == nullptr)
 		{
-			m_root = new Node{ data,nullptr,nullptr,nullptr };
-			return  false;
+			return  T();
 		}
 		auto current = m_root;
 		while (current != nullptr)
 		{
-			if (current->data == data)
-				return true;
-			if (current->data > data) 
-			{			
+			if ( compare(current->data,data))
+				return current->data;
+			if (current->data > data)
+			{
 				current = current->left;
 			}
 			else
@@ -62,7 +94,6 @@ public:
 				current = current->right;
 			}
 		}
-		return false;
 	}
 	/// <summary>
 	/// Вывод ЛКП 
