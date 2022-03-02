@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <stack> 
+#include <queue> 
 template<class  T>
 class  BinaryTree
 {
@@ -128,6 +129,38 @@ public:
 			{
 				stack.push(top);
 				top = top->right;
+			}
+		}
+		std::cout << '\n';
+	}
+
+	/// Выводит дерево по слоям/уровням
+	void printByLevels()
+	{
+		if (m_root == nullptr)
+		{
+			std::cout << "null\n"; return;;
+		}
+		std::queue<std::pair<Node*, int>> queue;
+		int level = 0;
+		queue.push(std::make_pair(m_root, level));
+		while(!queue.empty())
+		{
+			if (queue.front().second != level)
+			{
+				level++;
+				std::cout << '\n';
+			}
+			auto x = queue.front();
+			queue.pop();
+			std::cout << x.first->data << ' ';
+			if(x.first->left != nullptr)
+			{
+				queue.push(std::make_pair(x.first->left, x.second + 1));	
+			}
+			if (x.first->right != nullptr)
+			{
+				queue.push(std::make_pair(x.first->right, x.second + 1));
 			}
 		}
 		std::cout << '\n';
