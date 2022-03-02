@@ -24,7 +24,7 @@ public:
 		auto current = m_root;
 		while(current != nullptr)
 		{
-			if (current->data < data) {
+			if (current->data > data) {
 				if (current->left == nullptr) {
 					current->left = new Node{ data,current,nullptr,nullptr };
 					return;
@@ -43,9 +43,9 @@ public:
 	}
 	bool contains(T data)
 	{
-		if (m_root->data == nullptr)
+		if (m_root == nullptr)
 		{
-			m_root = Node{ data,nullptr,nullptr,nullptr };
+			m_root = new Node{ data,nullptr,nullptr,nullptr };
 			return  false;
 		}
 		auto current = m_root;
@@ -53,7 +53,7 @@ public:
 		{
 			if (current->data == data)
 				return true;
-			if (current->data < data) 
+			if (current->data > data) 
 			{			
 				current = current->left;
 			}
@@ -70,6 +70,7 @@ public:
 	void printLKP()
 	{
 		printLKPAuxiliary(m_root);
+		std::cout << '\n';
 	}
 
 
@@ -79,8 +80,10 @@ private:
 	/// </summary>
 	void printLKPAuxiliary(Node* current)
 	{
-		printLKP(current->left);
+		if(current == nullptr)
+			return;
+		printLKPAuxiliary(current->left);
 		std::cout << current->data << ' ';
-		printLKP(current->right);
+		printLKPAuxiliary(current->right);
 	}
 };
