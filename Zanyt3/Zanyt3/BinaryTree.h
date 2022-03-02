@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 template<class  T>
 class  BinaryTree
 {
@@ -16,9 +16,9 @@ public:
 	}
 	void insert(T data)
 	{
-		if(m_root->data  == nullptr)
+		if(m_root == nullptr)
 		{
-			m_root = Node{ data,nullptr,nullptr,nullptr };
+			m_root = new Node{ data,nullptr,nullptr,nullptr };
 			return;
 		}
 		auto current = m_root;
@@ -26,7 +26,7 @@ public:
 		{
 			if (current->data < data) {
 				if (current->left == nullptr) {
-					current->left = Node{ data,current,nullptr,nullptr };
+					current->left = new Node{ data,current,nullptr,nullptr };
 					return;
 				}
 				current = current->left;
@@ -34,7 +34,7 @@ public:
 			else
 			{
 				if (current->right == nullptr) {
-					current->right = Node{ data,current,nullptr,nullptr };
+					current->right = new Node{ data,current,nullptr,nullptr };
 					return;
 				}
 				current = current->right;
@@ -64,5 +64,23 @@ public:
 		}
 		return false;
 	}
-	
+	/// <summary>
+	/// Вывод ЛКП 
+	/// </summary>
+	void printLKP()
+	{
+		printLKPAuxiliary(m_root);
+	}
+
+
+private:
+	/// <summary>
+	/// Вывод ЛКП  дополнительная функция
+	/// </summary>
+	void printLKPAuxiliary(Node* current)
+	{
+		printLKP(current->left);
+		std::cout << current->data << ' ';
+		printLKP(current->right);
+	}
 };
