@@ -190,8 +190,23 @@ public:
 			}
 		}
 	}
-
+	
+	/// Сравнение с другим деревом
+	bool equalTo( BinaryTree<T> &bt)
+	{
+		return equalTo(this->m_root, bt.m_root);
+	}
 private:
+	
+	/// Сравнение двух узлов
+	bool equalTo( Node* &x,  Node* &y)
+	{
+		if (x == nullptr && y == nullptr)
+			return  true;
+		if (x == nullptr || y == nullptr)
+			return  false;
+		return  (x->data == y->data) && equalTo(x->left,y->left) && equalTo(x->right, y->right);
+	}
 	/// <summary>
 	/// Вывод ЛКП  дополнительная функция
 	/// </summary>
