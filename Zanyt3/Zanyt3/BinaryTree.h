@@ -148,7 +148,10 @@ private:
 		if (current == nullptr) return;
 		if (current->left == nullptr && current->right == nullptr)
 		{
-			current->parent = nullptr;
+			if (current->parent->right == current)
+				current->parent->right = nullptr;
+			if (current->parent->left == current)
+				current->parent->left = nullptr;
 			delete current;
 
 		}
@@ -167,6 +170,17 @@ private:
 			std::swap(extremeNode->parent, current->parent);
 			extremeNode->right = current->right;
 			current->right = nullptr;
+
+			if (extremeNode->parent->right == current) //Проверка по какой стороне current  была потомком
+				extremeNode->parent->right = extremeNode;
+			if (extremeNode->parent->left == current) 
+				extremeNode->parent->left = extremeNode;
+
+			if (current->parent->right == extremeNode) //Проверка по какой стороне extremeNode  была потомком
+				current->parent->right = current;
+			if (current->parent->left == extremeNode)
+				current->parent->left = current;
+			this->printLKP();
 			deleteParentWithOneSon(current);
 		}
 	}

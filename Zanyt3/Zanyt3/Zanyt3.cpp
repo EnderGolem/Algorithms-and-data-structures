@@ -46,14 +46,15 @@ int main()
 	}
 	{
 		BinaryTree<int> bt;
-		bt.insert(10);
-		bt.insert(1);
+		bt.insert(5);
 		bt.insert(4);
+		bt.insert(10);
+		bt.insert(12);
 		bt.insert(7);
+		bt.insert(9);
 		bt.insert(8);
 		bt.printLKP();
-		bt.contains(1);
-		bt.erase(1);
+		bt.erase(10);
 		bt.printLKP();
 		
 	}
