@@ -26,8 +26,7 @@ private:
 		iteratorBinaryTree(Node* node) : m_node(node) {}
 		T& operator*() { return  m_node->data; }
 		iteratorBinaryTree operator++()
-		{
-			
+		{			
 			if (m_node->right != nullptr)
 			{
 				m_node = m_node->right;
@@ -48,9 +47,42 @@ private:
 				m_node = m_node->parent;
 				return *this;
 			}
-
 		}
+		iteratorBinaryTree  operator++(int)
+		{
+			auto t = *this;
+			++*this;
+			return t;
+		}
+		iteratorBinaryTree operator--()
+		{
+			if (m_node->left != nullptr)
+			{
+				m_node = m_node->left;
+				while (m_node->right != nullptr)
+				{
+					m_node = m_node->right;
+				}
+				return *this;
+			}
 
+			while (m_node->parent->left == m_node)
+			{
+				m_node = m_node->parent;
+			}
+
+			if (m_node == m_node->parent->right)
+			{
+				m_node = m_node->parent;
+				return *this;
+			}
+		}
+		iteratorBinaryTree  operator--(int)
+		{
+			auto t = *this;
+			--* this;
+			return t;
+		}
 		friend bool operator==(iteratorBinaryTree v1, iteratorBinaryTree v2) {
 			return v1.m_node->data == v2.m_node->data;
 		}
@@ -69,6 +101,7 @@ public:
 	}
 	BinaryTree() : m_root(nullptr)
 	{
+
 	}
 	void insert(T data)
 	{
