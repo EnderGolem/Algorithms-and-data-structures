@@ -25,14 +25,21 @@ private:
 		using pointer = T*;
 		using reference = T&;
 		using iterator_category = std::bidirectional_iterator_tag;
-		iteratorBinaryTree(Node* node, Node* fictive) : m_node(node),it_fictive(fictive) {}
+		iteratorBinaryTree(Node* node, Node* fictive) : m_node(node), it_fictive(fictive) {}
 		T& operator*() { return  m_node->data; }
 		iteratorBinaryTree operator++()
-		{			
-			if (m_node->right != nullptr && m_node->right != it_fictive)
+		{
+			if (m_node == it_fictive)
+			{
+				m_node = it_fictive->left;
+				return *this;
+			}
+			if (m_node->right != nullptr )
 			{
 				m_node = m_node->right;
-				while (m_node->left != nullptr && m_node->left != it_fictive)
+				if (m_node == it_fictive)
+					return  *this;
+				while (m_node->left != nullptr && m_node->left != it_fictive )
 				{
 					m_node = m_node->left;
 				}
@@ -44,7 +51,7 @@ private:
 				m_node = m_node->parent;
 			}
 
-			if (m_node == m_node->parent->left )
+			if (m_node == m_node->parent->left)
 			{
 				m_node = m_node->parent;
 				return *this;
@@ -53,14 +60,21 @@ private:
 		iteratorBinaryTree  operator++(int)
 		{
 			auto t = *this;
-			++*this;
+			++* this;
 			return t;
 		}
 		iteratorBinaryTree operator--()
 		{
+			if (m_node == it_fictive)
+			{
+				m_node = it_fictive->right;
+				return *this;
+			}
 			if (m_node->left != nullptr && m_node->left != it_fictive)
 			{
 				m_node = m_node->left;
+				if (m_node == it_fictive)
+					return  *this;
 				while (m_node->right != nullptr && m_node->right != it_fictive)
 				{
 					m_node = m_node->right;
@@ -86,27 +100,37 @@ private:
 			return t;
 		}
 		friend bool operator==(iteratorBinaryTree v1, iteratorBinaryTree v2) {
-			return v1.m_node->data == v2.m_node->data;
+			return v1.m_node == v2.m_node;
 		}
 		friend bool operator!=(iteratorBinaryTree v1, iteratorBinaryTree v2) {
 			return !(v1 == v2);
 		}
 	};
 public:
-
+	iteratorBinaryTree begin()
+	{
+		auto r = m_root;
+		while (r->left != nullptr && r->left != m_fictive)
+			r = r->left;
+		return iteratorBinaryTree(r, m_fictive);
+	}
+	iteratorBinaryTree end()
+	{
+		return iteratorBinaryTree(m_fictive, m_fictive);
+	}
 	iteratorBinaryTree first()
 	{
 		auto r = m_root;
 		while (r->left != nullptr && r->left != m_fictive)
 			r = r->left;
-		return iteratorBinaryTree(r,m_fictive);
+		return iteratorBinaryTree(r, m_fictive);
 	}
 	BinaryTree() : m_root(nullptr)
 	{
 		void* place = operator new(sizeof(Node)); // Выделяем память под фиктивную вершину без вызова конструктора
-		 m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
-		 m_fictive->left = m_fictive;
-		 m_fictive->right = m_fictive;
+		m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
+		m_fictive->left = m_fictive;
+		m_fictive->right = m_fictive;
 	}
 	void insert(T data)
 	{
@@ -122,7 +146,7 @@ public:
 		while (current != nullptr)
 		{
 			if (current->data > data) {
-				if(current->left == m_fictive)
+				if (current->left == m_fictive)
 				{
 					current->left = new Node{ data,current, m_fictive,nullptr };
 					m_fictive->left = current->left;
@@ -210,8 +234,8 @@ public:
 	void printLKP()
 	{
 		printLKPAuxiliary(m_root);
-		std::cout<<" End" << '\n';
-	} 
+		std::cout << " End" << '\n';
+	}
 	/// <summary>
 	/// Вывод ПКЛ
 	/// </summary>
@@ -311,7 +335,7 @@ private:
 	/// Сравнение двух узлов
 	bool equalTo(Node*& x, Node*& y, Node*& y_fictive)
 	{
-		if ((x == nullptr || x == m_fictive) && (y == nullptr || y == y_fictive) )
+		if ((x == nullptr || x == m_fictive) && (y == nullptr || y == y_fictive))
 			return  true;
 		if (x == nullptr || y == nullptr || x == m_fictive || y == y_fictive)
 			return  false;
@@ -333,7 +357,7 @@ private:
 	void deleteNode(Node* current)
 	{
 		if (current == nullptr && current == m_fictive) return;
-		if ( (current->left == nullptr || current->right == m_fictive)&& (current->right == nullptr || current->right == m_fictive)  )
+		if ((current->left == nullptr || current->right == m_fictive) && (current->right == nullptr || current->right == m_fictive))
 		{
 			if (current->parent->right == current)
 				current->parent->right = nullptr;

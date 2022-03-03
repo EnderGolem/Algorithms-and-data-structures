@@ -84,6 +84,7 @@ void testIterator()
 	assert(*g == 2);
 	--g;
 	assert(*g == 1);
+
 }
 
 void TestContainsMinMax()
@@ -202,6 +203,17 @@ void testPrintByLevels()
 	bt.insert(8);
 	bt.printByLevels();
 }
+void testFor()
+{
+	BinaryTree<int> bt;
+	bt.insert(5);
+	bt.insert(1);
+	bt.insert(6);
+	for (auto x : bt)
+	{
+		cout << x << ' ';
+	}
+}
 
 int main()
 {
@@ -213,6 +225,6 @@ int main()
 	testPrintByLevels();
 	testEqualTo();
 	testIterator();
-
+	testFor();
 	system("pause");
 }
