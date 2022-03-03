@@ -113,5 +113,58 @@ int main()
 		BinaryTree<int> bt4;
 		cout << bt1.equalTo(bt4) << '\n';
 	}
+
+	{
+		cout << '\n';
+		BinaryTree<int> bt;
+		bt.insert(10);
+		bt.insert(5);
+		bt.insert(15);
+		bt.insert(2);
+		bt.insert(7);
+		bt.insert(1);
+		bt.insert(3);
+		bt.insert(4);
+
+
+		bt.insert(12);
+		bt.insert(18);
+		bt.insert(11);
+		bt.insert(13);
+		bt.insert(16);
+		bt.insert(19);
+
+
+		bt.printByLevels();
+		bt.printLKP();
+		auto g = bt.first();
+		cout << *g  << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+		++g;
+		cout << *g << ' ';
+	}
 	system("pause");
 }

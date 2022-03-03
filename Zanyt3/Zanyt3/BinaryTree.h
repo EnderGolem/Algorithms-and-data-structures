@@ -1,7 +1,8 @@
 #pragma once
 #include <iostream>
 #include <stack> 
-#include <queue> 
+#include <queue>
+using namespace  std;
 template<class  T>
 class  BinaryTree
 {
@@ -11,8 +12,61 @@ private:
 		T data;
 		Node* parent, * left, * right;
 	};
-public:
 	Node* m_root;
+	class iteratorBinaryTree
+	{
+	private:
+		Node* m_node;
+	public:
+		using difference_type = size_t;
+		using value_type = T;
+		using pointer = T*;
+		using reference = T&;
+		using iterator_category = std::bidirectional_iterator_tag;
+		iteratorBinaryTree(Node* node) : m_node(node) {}
+		T& operator*() { return  m_node->data; }
+		iteratorBinaryTree operator++()
+		{
+			
+			if (m_node->right != nullptr)
+			{
+				m_node = m_node->right;
+				while (m_node->left != nullptr)
+				{
+					m_node = m_node->left;
+				}
+				return *this;
+			}
+
+			while (m_node->parent->right == m_node)
+			{
+				m_node = m_node->parent;
+			}
+
+			if (m_node == m_node->parent->left)
+			{
+				m_node = m_node->parent;
+				return *this;
+			}
+
+		}
+
+		friend bool operator==(iteratorBinaryTree v1, iteratorBinaryTree v2) {
+			return v1.m_node->data == v2.m_node->data;
+		}
+		friend bool operator!=(iteratorBinaryTree v1, iteratorBinaryTree v2) {
+			return !(v1 == v2);
+		}
+	};
+public:
+
+	iteratorBinaryTree first()
+	{
+		auto r = m_root;
+		while (r->left != nullptr)
+			r = r->left;
+		return iteratorBinaryTree(r);
+	}
 	BinaryTree() : m_root(nullptr)
 	{
 	}
@@ -110,7 +164,7 @@ public:
 	/// </summary>
 	void printPKL()
 	{
-		if(m_root == nullptr)
+		if (m_root == nullptr)
 		{
 			std::cout << "null\n"; return;;
 		}
@@ -144,7 +198,7 @@ public:
 		std::queue<std::pair<Node*, int>> queue;
 		int level = 0;
 		queue.push(std::make_pair(m_root, level));
-		while(!queue.empty())
+		while (!queue.empty())
 		{
 			if (queue.front().second != level)
 			{
@@ -154,9 +208,9 @@ public:
 			auto x = queue.front();
 			queue.pop();
 			std::cout << x.first->data << ' ';
-			if(x.first->left != nullptr)
+			if (x.first->left != nullptr)
 			{
-				queue.push(std::make_pair(x.first->left, x.second + 1));	
+				queue.push(std::make_pair(x.first->left, x.second + 1));
 			}
 			if (x.first->right != nullptr)
 			{
@@ -190,22 +244,22 @@ public:
 			}
 		}
 	}
-	
+
 	/// Сравнение с другим деревом
-	bool equalTo( BinaryTree<T> &bt)
+	bool equalTo(BinaryTree<T>& bt)
 	{
 		return equalTo(this->m_root, bt.m_root);
 	}
 private:
-	
+
 	/// Сравнение двух узлов
-	bool equalTo( Node* &x,  Node* &y)
+	bool equalTo(Node*& x, Node*& y)
 	{
 		if (x == nullptr && y == nullptr)
 			return  true;
 		if (x == nullptr || y == nullptr)
 			return  false;
-		return  (x->data == y->data) && equalTo(x->left,y->left) && equalTo(x->right, y->right);
+		return  (x->data == y->data) && equalTo(x->left, y->left) && equalTo(x->right, y->right);
 	}
 	/// <summary>
 	/// Вывод ЛКП  дополнительная функция
