@@ -63,6 +63,3 @@ ipch/
 *.VC.VC.opendb
 
 
-
-*.vcxproj
-*.vcxproj.filters
