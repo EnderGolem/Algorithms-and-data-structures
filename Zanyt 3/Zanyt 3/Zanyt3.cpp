@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <assert.h>
 #include "BinaryTree.h"
+#include "BinarySet.h"
 
 using namespace  std;
 
@@ -134,13 +135,13 @@ void testErase()
 {
 	cout << "erase\n";
 	{
-		BinaryTree<int> bt({5,4,10,12,7,9,8});
+		BinaryTree<int> bt({ 5,4,10,12,7,9,8 });
 		bt.printLKP();
 		bt.erase(10);
 		bt.printLKP();
 	}
 	{
-		BinaryTree<int> bt({5,4,6});
+		BinaryTree<int> bt({ 10,5,4,6 });
 		bt.printByLevels();
 		bt.printLKP();
 		bt.erase(5);
@@ -218,9 +219,51 @@ void testFor()
 	}
 }
 
+void eratosphenMassive(int n)
+{
+	auto a = new int[n + 1];
+	for (int i = 1; i <= n; i++)
+	{
+		a[i] = 1;
+	}
+	for (int i = 2; i <= n; i++)
+	{
+		if(a[i] == 1)
+			for(int y = i + i;y <= n;y += i)
+			{
+				a[y] = 0;
+			}
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		if(a[i] == 1)
+		{
+			cout << i << ' ';
+		}
+	}
+	cout << '\n';
+}
+
+void eratosphenBinarySetRegular(int n)
+{
+	BinarySet<int> a;
+	for (int i = 1; i <= n; i++)
+	{
+		a.add(i);
+	}
+	for (int i = 2; i <= n; i++)
+	{
+
+	}
+	for(auto x : a)
+	{
+		cout << x << ' ';
+	}
+	cout << '\n';
+}
 int main()
 {
-
+	/*
 	TestContainsMinMax();
 	testLowerUpper();
 	testErase();
@@ -228,6 +271,8 @@ int main()
 	testPrintByLevels();
 	testEqualTo();
 	testIterator();
-	testFor();
+	testFor();*/
+	eratosphenMassive(1000);
+
 	system("pause");
 }
