@@ -222,61 +222,50 @@ void testFor()
 		cout << x << ' ';
 	}
 }
-
+int* massive;
 void eratosphenMassive(int n)
 {
-	auto a = new int[n + 1];
-	for (int i = 1; i <= n; i++)
-	{
-		a[i] = 1;
-	}
+	
 	for (int i = 2; i <= n; i++)
 	{
-		if (a[i] == 1)
+		if (massive[i] == 1)
 			for (int y = i + i; y <= n; y += i)
 			{
-				a[y] = 0;
+				massive[y] = 0;
 			}
 	}
-	delete a;
+
 }
 
+BinarySet<int> binaries;
 void eratosphenBinarySetRegular(int n)
 {
-	BinarySet<int> a;
-	for (int i = 1; i <= n; i++)
-	{
-		a.add(i);
-	}
+	
 	for (int i = 2; i <= n; i++)
 	{
 		for (int y = i + i; y <= n; y += i)
 		{
-			a.erase(y);
+			binaries.erase(y);
 		}
 	}
 	
 }
 
+set<int> usualSet;
 void eratosphenBinarySetStandart(int n)
 {
-	set<int> a;
-	for (int i = 1; i <= n; i++)
-	{
-		a.insert(i);
-	}
 	for (int i = 2; i <= n; i++)
 	{
 		for (int y = i + i; y <= n; y += i)
 		{
-			a.erase(y);
+			usualSet.erase(y);
 		}
 	}
 	
 }
 long double  test(void (*F)(int), int n)
 {
-	int	count = 20;
+	int	count = 10;
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 	for(int i = 0;i < count;i++)
 	{
@@ -292,10 +281,24 @@ void createTable()
 {
 	ofstream out("results.csv");
 	out << "Massive;BinarySet;Set;\n";
-	for (int i = 1; i < 1e9; i*=10) {
+	for (int i = 100; i < 1e8; i*=10) {
 		out << i << ";";
 		cout << i << '\n';
+		massive = new int[i + 1];
+		for (int element = 1; element <= i; element++)
+		{
+			massive[element] = 1;
+		}
+		binaries = BinarySet<int>();
+		for (int element = 1; element <= i; element++)
+		{
+			binaries.add(element);
+		}
 
+		for (int element = 1; element <= i; element++)
+		{
+			usualSet.insert(element);
+		}
 		auto f = test(eratosphenMassive, i); out << f << ";";
 		f = test(eratosphenBinarySetRegular, i); out << f << ";";
 		f = test(eratosphenBinarySetStandart, i); out << f << "; \n";

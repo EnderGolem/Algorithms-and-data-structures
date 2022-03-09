@@ -5,21 +5,6 @@
 
 
 
-template<typename  T>
-long double  test(void (*F)(int), int n, T a)
-{
-	int	count = 20;
-	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-	for (int i = 0; i < count; i++)
-	{
-		F(n);
-	}
-	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-	long double duration = std::chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-	cout << duration / count << '\n';
-	return (duration) / count;
-}
-
 
 template<class  T>
 class  BinarySet
