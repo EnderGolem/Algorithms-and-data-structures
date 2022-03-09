@@ -134,14 +134,7 @@ void testErase()
 {
 	cout << "erase\n";
 	{
-		BinaryTree<int> bt;
-		bt.insert(5);
-		bt.insert(4);
-		bt.insert(10);
-		bt.insert(12);
-		bt.insert(7);
-		bt.insert(9);
-		bt.insert(8);
+		BinaryTree<int> bt({5,4,10,12,7,9,8});
 		bt.printLKP();
 		bt.erase(10);
 		bt.printLKP();
@@ -149,10 +142,10 @@ void testErase()
 	{
 		BinaryTree<int> bt({5,4,6});
 		bt.printByLevels();
-		bt.printPKL();
+		bt.printLKP();
 		bt.erase(5);
 		bt.printByLevels();
-		bt.printPKL();
+		bt.printLKP();
 	}
 }
 

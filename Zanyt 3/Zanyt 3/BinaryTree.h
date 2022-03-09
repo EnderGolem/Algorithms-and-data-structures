@@ -34,12 +34,12 @@ private:
 				m_node = it_fictive->left;
 				return *this;
 			}
-			if (m_node->right != nullptr )
+			if (m_node->right != nullptr)
 			{
 				m_node = m_node->right;
 				if (m_node == it_fictive)
 					return  *this;
-				while (m_node->left != nullptr && m_node->left != it_fictive )
+				while (m_node->left != nullptr && m_node->left != it_fictive)
 				{
 					m_node = m_node->left;
 				}
@@ -132,13 +132,13 @@ public:
 		m_fictive->left = m_fictive;
 		m_fictive->right = m_fictive;
 	}
-	BinaryTree(initializer_list<T> lst): m_root(nullptr)
+	BinaryTree(initializer_list<T> lst) : m_root(nullptr)
 	{
 		void* place = operator new(sizeof(Node)); // Выделяем память под фиктивную вершину без вызова конструктора
 		m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
 		m_fictive->left = m_fictive;
 		m_fictive->right = m_fictive;
-		for(auto x : lst)
+		for (auto x : lst)
 		{
 			this->insert(x);
 		}
@@ -242,7 +242,7 @@ public:
 	/// <summary>
 	/// Вывод ЛКП 
 	/// </summary>
-	void printLKP()
+	void printLKP() const
 	{
 		printLKPAuxiliary(m_root);
 		std::cout << " End" << '\n';
@@ -280,7 +280,7 @@ public:
 	}
 
 	/// Выводит дерево по слоям/уровням
-	void printByLevels()
+	void printByLevels() const
 	{
 		if (m_root == nullptr)
 		{
@@ -301,6 +301,7 @@ public:
 			std::cout << x.first->data << ' ';
 			if (x.first->left != nullptr && x.first->left != m_fictive)
 			{
+				std::cout << (x.first->left == nullptr) << '\n';
 				queue.push(std::make_pair(x.first->left, x.second + 1));
 			}
 			if (x.first->right != nullptr && x.first->right != m_fictive)
@@ -308,7 +309,7 @@ public:
 				queue.push(std::make_pair(x.first->right, x.second + 1));
 			}
 		}
-		std::cout << '\n';
+		std::cout << " End" << '\n';
 	}
 	/// Удаляет элемент по его значению
 	void erase(T data)
@@ -355,7 +356,7 @@ private:
 	/// <summary>
 	/// Вывод ЛКП  дополнительная функция
 	/// </summary>
-	void printLKPAuxiliary(Node* current)
+	void printLKPAuxiliary(Node* current) const
 	{
 		if (current == nullptr || current == m_fictive)
 			return;
@@ -368,16 +369,14 @@ private:
 	void deleteNode(Node* current)
 	{
 		if (current == nullptr && current == m_fictive) return;
-		if ((current->left == nullptr || current->right == m_fictive) && (current->right == nullptr || current->right == m_fictive))
+
+		//Delete if node is leaf
+		if ((current->left == nullptr || current->left == m_fictive) && (current->right == nullptr || current->right == m_fictive))
 		{
-			if (current->parent->right == current)
-				current->parent->right = nullptr;
-			if (current->parent->left == current)
-				current->parent->left = nullptr;
-			delete current;
+			deleteNodeWithoutSon(current);
 
 		}
-		else if (current->left == nullptr || current->right == nullptr)
+		else if (current->left == nullptr || current->right == nullptr || current->left == m_fictive || current->right == m_fictive)
 		{
 			deleteParentWithOneSon(current);
 		}
@@ -385,55 +384,137 @@ private:
 		{
 			Node* extremeNode = current;
 			extremeNode = extremeNode->left;
-			while (extremeNode->right != nullptr)
+			while (extremeNode->right != nullptr /* || extremeNode->right != m_fictive*/) //Вторая проверка предположительно не нужна
 				extremeNode = extremeNode->right;
 
-			std::swap(extremeNode->left, current->left);
-			std::swap(extremeNode->parent, current->parent);
-			extremeNode->right = current->right;
-			current->right = nullptr;
+			//Change son
+			if (current->left == extremeNode) //if we swap the direct son and parent
+			{
+				auto x = extremeNode->left;
+				extremeNode->left = current;
+				current->left = x;
 
-			if (extremeNode->parent->right == current) //Проверка по какой стороне current  была потомком
-				extremeNode->parent->right = extremeNode;
-			if (extremeNode->parent->left == current)
-				extremeNode->parent->left = extremeNode;
+				extremeNode->parent = current->parent;
+				current->parent = extremeNode;
+				extremeNode->right = current->right;
+				current->right = nullptr;
+
+			}
+			else {
+				std::swap(extremeNode->left, current->left);
+
+				if (current == m_root) {
+					current->parent = extremeNode->parent;
+					extremeNode->parent = nullptr;
+				}
+				else
+					std::swap(extremeNode->parent, current->parent);
+				extremeNode->right = current->right;
+				current->right = nullptr;
+			}
+
+
+			//Change parent son
+			if (extremeNode->parent != nullptr)
+				if (extremeNode->parent->right == current) //Проверка по какой стороне current  была потомком
+					extremeNode->parent->right = extremeNode;
+				else
+					extremeNode->parent->left = extremeNode;
 
 			if (current->parent->right == extremeNode) //Проверка по какой стороне extremeNode  была потомком
 				current->parent->right = current;
 			if (current->parent->left == extremeNode)
 				current->parent->left = current;
-			deleteParentWithOneSon(current);
+
+			if (current == m_root)
+			{
+				m_root = extremeNode;
+			}
+			if (extremeNode == m_fictive->left)
+				m_fictive->left = current;
+			//Delete if current is leaf or has one son.
+			if ((current->left == nullptr || current->left == m_fictive) && (current->right == nullptr || current->right == m_fictive))
+			{
+				deleteNodeWithoutSon(current);
+			}
+			else if (current->left == nullptr || current->right == nullptr || current->left == m_fictive || current->right == m_fictive)
+			{
+				deleteParentWithOneSon(current);
+			}
 		}
+	}
+
+	/// Extract methods for deleteNode, delete node with zero childern
+	void deleteNodeWithoutSon(Node* current)
+	{
+		if (current == m_root) {
+			m_root = nullptr;
+			m_fictive->left = m_fictive;
+			m_fictive->right = m_fictive;
+			return;
+		}
+
+		if (current->parent->right == current)
+			current->parent->right = nullptr;
+		else
+			current->parent->left = nullptr;
+		//Check if current end by m_fictive
+		if (m_fictive->left == current) {
+			m_fictive->left = current->parent;
+			current->parent->left = m_fictive;
+		}
+		if (m_fictive->right == current) {
+			m_fictive->right = current->parent;
+			current->parent->right = m_fictive;
+		}
+
+		delete current;
+		current = nullptr;
 	}
 
 
 	/// Вспомогательня для deleteNode, удаляет Ноду с одним потомком	
 	void deleteParentWithOneSon(Node*& current)
 	{
-		auto x = current;
-		if (current->left != nullptr)          //Удаление, если левый узел занят
+		if (current->left != nullptr && current->left != m_fictive)          //Удаление, если левый узел занят
 		{
-			current->left->parent = current->parent;
+			if (current != m_root)
+				current->left->parent = current->parent;
 			changedParentWhileDelete(current, current->left);
+			if (current == m_root)
+				m_root = current->left;
+
 		}
-		if (current->right != nullptr)  		//Удаление, если правый узел занят
+		if (current->right != nullptr && current->right != m_fictive)  		//Удаление, если правый узел занят
 		{
-			current->right->parent = current->parent;
-			changedParentWhileDelete(current, current->left);
+			if (current != m_root)
+				current->right->parent = current->parent;
+			changedParentWhileDelete(current, current->right);
+			if (current == m_root)
+				m_root = current->right;
+
 		}
-		delete x;
+		delete current;
+		current = nullptr;
 	}
 
 	/// <summary>
-	/// Вспомогательня для deleteNode
+	/// Вспомогательня для deleteNodе
 	/// </summary>
-	/// <param name="d_curentSon">Переменная, хранящая занятую переменную</param>
-	void changedParentWhileDelete(Node*& d_current, Node*& d_curentSon)
+	/// <param name="d_currentSon">Переменная, хранящая занятую переменную</param>
+	void changedParentWhileDelete(Node*& d_current, Node*& d_currentSon)
 	{
-		if (d_current->parent->left == d_current)	 //Если текущий, левый сын
-			d_current->parent->left = d_curentSon;
-
-		if (d_current->parent->right == d_current)	 //Если текущий, правый сын
-			d_current->parent->right = d_curentSon;
+		//Change son
+		if (d_current != m_root) {
+			if (d_current->parent->left == d_current)	 //Если текущий, левый сын
+				d_current->parent->left = d_currentSon;
+			else										//Если текущий, правый сын
+				d_current->parent->right = d_currentSon;
+		}
+		//Change m_fictive 
+		if (m_fictive->left == d_current)
+			m_fictive->left = d_current->parent;
+		if (m_fictive->right == d_current)
+			m_fictive->right = d_current->parent;
 	}
 };
