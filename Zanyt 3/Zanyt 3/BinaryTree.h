@@ -14,6 +14,7 @@ private:
 	};
 	Node* m_root;
 	Node* m_fictive;
+public:
 	class iteratorBinaryTree
 	{
 	private:

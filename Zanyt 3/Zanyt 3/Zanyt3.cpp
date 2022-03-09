@@ -1,5 +1,9 @@
 ﻿#include <iostream>
 #include <assert.h>
+#include <chrono>
+#include <fstream>
+#include <set>
+
 #include "BinaryTree.h"
 #include "BinarySet.h"
 
@@ -228,20 +232,13 @@ void eratosphenMassive(int n)
 	}
 	for (int i = 2; i <= n; i++)
 	{
-		if(a[i] == 1)
-			for(int y = i + i;y <= n;y += i)
+		if (a[i] == 1)
+			for (int y = i + i; y <= n; y += i)
 			{
 				a[y] = 0;
 			}
 	}
-	for (int i = 1; i <= n; i++)
-	{
-		if(a[i] == 1)
-		{
-			cout << i << ' ';
-		}
-	}
-	cout << '\n';
+	delete a;
 }
 
 void eratosphenBinarySetRegular(int n)
@@ -253,16 +250,69 @@ void eratosphenBinarySetRegular(int n)
 	}
 	for (int i = 2; i <= n; i++)
 	{
+		for (int y = i + i; y <= n; y += i)
+		{
+			a.erase(y);
+		}
+	}
+	
+}
+
+void eratosphenBinarySetStandart(int n)
+{
+	set<int> a;
+	for (int i = 1; i <= n; i++)
+	{
+		a.insert(i);
+	}
+	for (int i = 2; i <= n; i++)
+	{
+		for (int y = i + i; y <= n; y += i)
+		{
+			a.erase(y);
+		}
+	}
+	
+}
+long double  test(void (*F)(int), int n)
+{
+	int	count = 20;
+	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+	for(int i = 0;i < count;i++)
+	{
+		F(n);
+	}
+	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	long double duration = std::chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+	cout << duration / count << '\n';
+	return (duration) / count;
+}
+
+void createTable()
+{
+	ofstream out("results.csv");
+	out << "Massive;BinarySet;Set;\n";
+	for (int i = 1; i < 1e9; i*=10) {
+		out << i << ";";
+		cout << i << '\n';
+
+		auto f = test(eratosphenMassive, i); out << f << ";";
+		f = test(eratosphenBinarySetRegular, i); out << f << ";";
+		f = test(eratosphenBinarySetStandart, i); out << f << "; \n";
+		
+
 
 	}
-	for(auto x : a)
-	{
-		cout << x << ' ';
-	}
-	cout << '\n';
+
+
+	out.close();
+	system("results.csv");
+	system("pause");
 }
 int main()
 {
+
+
 	/*
 	TestContainsMinMax();
 	testLowerUpper();
@@ -272,7 +322,6 @@ int main()
 	testEqualTo();
 	testIterator();
 	testFor();*/
-	eratosphenMassive(1000);
-
+	createTable();
 	system("pause");
 }
