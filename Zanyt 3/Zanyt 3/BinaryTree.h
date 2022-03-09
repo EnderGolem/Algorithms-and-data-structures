@@ -132,6 +132,17 @@ public:
 		m_fictive->left = m_fictive;
 		m_fictive->right = m_fictive;
 	}
+	BinaryTree(initializer_list<T> lst): m_root(nullptr)
+	{
+		void* place = operator new(sizeof(Node)); // Выделяем память под фиктивную вершину без вызова конструктора
+		m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
+		m_fictive->left = m_fictive;
+		m_fictive->right = m_fictive;
+		for(auto x : lst)
+		{
+			this->insert(x);
+		}
+	}
 	void insert(T data)
 	{
 		if (m_root == nullptr)
