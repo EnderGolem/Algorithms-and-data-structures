@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinarySet.h" />
     <ClInclude Include="BinaryTree.h" />
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stack> 
 #include <queue>
-using namespace  std;
+
 template<class  T>
 class  BinaryTree
 {
@@ -132,7 +132,7 @@ public:
 		m_fictive->left = m_fictive;
 		m_fictive->right = m_fictive;
 	}
-	BinaryTree(initializer_list<T> lst) : m_root(nullptr)
+	BinaryTree(std::initializer_list<T> lst) : m_root(nullptr)
 	{
 		void* place = operator new(sizeof(Node)); // Выделяем память под фиктивную вершину без вызова конструктора
 		m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
@@ -301,7 +301,6 @@ public:
 			std::cout << x.first->data << ' ';
 			if (x.first->left != nullptr && x.first->left != m_fictive)
 			{
-				std::cout << (x.first->left == nullptr) << '\n';
 				queue.push(std::make_pair(x.first->left, x.second + 1));
 			}
 			if (x.first->right != nullptr && x.first->right != m_fictive)
