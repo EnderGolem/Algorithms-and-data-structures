@@ -225,7 +225,7 @@ void testFor()
 int* massive;
 void eratosphenMassive(int n)
 {
-	
+
 	for (int i = 2; i <= n; i++)
 	{
 		if (massive[i] == 1)
@@ -237,18 +237,18 @@ void eratosphenMassive(int n)
 
 }
 
-BinarySet<int> binaries;
+BinarySet<int> binaries1;
 void eratosphenBinarySetRegular(int n)
 {
-	
+
 	for (int i = 2; i <= n; i++)
 	{
 		for (int y = i + i; y <= n; y += i)
 		{
-			binaries.erase(y);
+			binaries1.erase(y);
 		}
 	}
-	
+
 }
 
 set<int> usualSet;
@@ -261,13 +261,13 @@ void eratosphenBinarySetStandart(int n)
 			usualSet.erase(y);
 		}
 	}
-	
+
 }
 long double  test(void (*F)(int), int n)
 {
-	int	count = 10;
+	int	count = 1;
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-	for(int i = 0;i < count;i++)
+	for (int i = 0; i < count; i++)
 	{
 		F(n);
 	}
@@ -277,32 +277,47 @@ long double  test(void (*F)(int), int n)
 	return (duration) / count;
 }
 
+void createSets(int i)
+{
+	massive = new int[i + 1];
+	for (int element = 1; element <= i; element++)
+	{
+		massive[element] = 1;
+	}
+	binaries1 = BinarySet<int>();
+	for (int element = 1; element <= i; element++)
+	{
+		binaries1.add(element);
+	}
+	
+	usualSet = set<int>();
+	for (int element = 1; element <= i; element++)
+	{
+		usualSet.insert(element);
+	}
+}
+
 void createTable()
 {
 	ofstream out("results.csv");
-	out << "Massive;BinarySet;Set;\n";
-	for (int i = 100; i < 1e8; i*=10) {
-		out << i << ";";
-		cout << i << '\n';
-		massive = new int[i + 1];
-		for (int element = 1; element <= i; element++)
-		{
-			massive[element] = 1;
-		}
-		binaries = BinarySet<int>();
-		for (int element = 1; element <= i; element++)
-		{
-			binaries.add(element);
-		}
+	out << "Massive;BinarySet;BinarySetOptimiz;Set;\n";
+	int r = 50;
+	for (int i = 100; i < 1e6; i *= 10) {
 
-		for (int element = 1; element <= i; element++)
-		{
-			usualSet.insert(element);
-		}
-		auto f = test(eratosphenMassive, i); out << f << ";";
+		out << r << ";";
+		cout << "Size " << r << '\n';
+		createSets(r);
+		auto f = test(eratosphenMassive, r); out << f << ";";
+		f = test(eratosphenBinarySetRegular, r); out << f << ";";
+		f = test(eratosphenBinarySetStandart, r); out << f << "; \n";
+		r *= 10;
+
+		out << "Size " << i << ";";
+		cout << i << '\n';
+		createSets(i);
+		f = test(eratosphenMassive, i); out << f << ";";
 		f = test(eratosphenBinarySetRegular, i); out << f << ";";
 		f = test(eratosphenBinarySetStandart, i); out << f << "; \n";
-		
 
 
 	}
