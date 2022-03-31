@@ -3,6 +3,8 @@
 #include <stack> 
 #include <queue>
 
+//VASNO make how make SANY
+
 template<class  T>
 class  BinaryTree
 {
@@ -12,9 +14,10 @@ private:
 		T data;
 		Node* parent, * left, * right;
 	};
-	Node* m_root;
+	Node* m_root; //VASHNO You can store a root in m_fictive.parent
 	Node* m_fictive;
 public:
+	static int iteratorBinaryTree;
 	class iteratorBinaryTree
 	{
 	private:
@@ -108,6 +111,7 @@ public:
 		}
 	};
 public:
+	//VASHNO You can make  m_fictive.left.
 	iteratorBinaryTree begin()
 	{
 		auto r = m_root;
@@ -135,8 +139,10 @@ public:
 	}
 	BinaryTree(std::initializer_list<T> lst) : m_root(nullptr)
 	{
+		//VASHNO  You need delete with sizeof for place. 
 		void* place = operator new(sizeof(Node)); // Выделяем память под фиктивную вершину без вызова конструктора
 		m_fictive = static_cast<Node*>(place); // Получаем указатель на фиктивную вершину
+		
 		m_fictive->left = m_fictive;
 		m_fictive->right = m_fictive;
 		for (auto x : lst)
@@ -193,6 +199,7 @@ public:
 	{
 		return data == generalBound(data, [](T x, T y)->T {return  x == y; });
 	}
+	//VASHNO You can make m_fictive
 	T maxElement()
 	{
 		auto current = m_root;
@@ -248,6 +255,8 @@ public:
 		printLKPAuxiliary(m_root);
 		std::cout << " End" << '\n';
 	}
+
+	//Разобраться, как переводить из рекурсии в обычный код
 	/// <summary>
 	/// Вывод ПКЛ
 	/// </summary>
