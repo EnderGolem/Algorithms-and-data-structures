@@ -97,14 +97,13 @@ void realize_tree_for_words_char()
 	}
 	in.close();
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
+	cout <<"Time " << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
 
 	tree.find_max();
-	chrono::high_resolution_clock::time_point t3 = chrono::high_resolution_clock::now();
-	cout << chrono::duration_cast<chrono::milliseconds>(t3 - t2).count() <<" "<< chrono::duration_cast<chrono::milliseconds>(t3 - t1).count() << '\n';
+	
 }
 
-void realize_unordered_map()
+void realize_unordered_map_first()
 {
 	unordered_map<string, int> mp;
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
@@ -123,10 +122,12 @@ void realize_unordered_map()
 				}
 
 			}
-			if(s.length() > 0 && 'A' <= s[0] && s[0] <= 'Z')
-			{
+			while(s.length() > 0 && !( 'A' <= s[0] && s[0] <= 'z') )
+				s.erase(0);
+			
+			if(s.length() > 0  && 'A' <= s[0] && s[0] <= 'Z')			
 				s[0] += 32;
-			}
+			
 			if(!s.empty())
 				mp[s]++;
 		}
@@ -138,48 +139,74 @@ void realize_unordered_map()
 	}
 	in.close();
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	cout << mp.size() << '\n';
 	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
-}
-
-void find_replace(string &str, const string & substr)
-{
-	size_t f;
-	while((f = str.find(substr)) != string::npos)
+	vector<pair<string, int>> vec;
+	for (auto& x : mp)
 	{
-		str.replace(f, substr.length(), "");
+		vec.emplace_back(x.first, x.second);
+	}
+	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
+	for (int i = 0; i < 50; i++)
+	{
+		std::cout << vec[i].first << " - " << vec[i].second << "\n";
 	}
 }
 
-void remove_delimers(string s)
-{
-	find_replace(s, ",");
-	find_replace(s, ".");
-	find_replace(s, "!");
-	find_replace(s, "?");
-	find_replace(s, " ");
-}
-void to_lower(std::string& str)
-{
-	transform(str.begin(), str.end(),str.begin() ,std::tolower);
-}
-void realize_unordered_map_not()
+void realize_unordered_map_second()
 {
 	unordered_map<string, int> mp;
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 	std::ifstream in("War and Peace.txt");
-	string s;
-	for(in>>s;!in.eof();in>>s)
+	if (in.is_open())
 	{
-		to_lower(s);
-		remove_delimers(s);
-		++mp[s];
+		string s;
+		while (in >> s)
+		{
+			if (s.back() < 'a' || s.back() > 'z')
+			{
+				s.pop_back();
+				while (s.length() > 0 && (s.back() < 'a' || s.back() > 'z'))
+				{
+					s.pop_back();
+				}
+
+			}
+			while (s.length() > 0 && !('A' <= s[0] && s[0] <= 'z') )			
+				s.erase(0);
+			
+			if (!s.empty() && 'A' <= s[0] && s[0] <= 'Z')
+				mp[s]++;
+		}
+
+	}
+	else
+	{
+		cout << "Couldn't open file\n";
 	}
 	in.close();
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	cout << mp.size() << '\n';
 	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
+	vector<pair<string, int>> vec;
+	for (auto& x : mp)
+	{
+		vec.emplace_back(x.first, x.second);
+	}
+	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second < y.second; });
+	for (int i = 0; i < 50; i++)
+	{
+		std::cout << vec[i].first << " - " << vec[i].second << "\n";
+	}
 }
+
 
 int main()
 {
-	realize_unordered_map_not();
+	cout << "---------------------------\n";
+	realize_unordered_map_second();
+	cout << "---------------------------\n";
+//	realize_tree_for_words_char();
+	cout << "---------------------------\n";
+	cout << static_cast<char>('A' + 32) << '\n';
 }

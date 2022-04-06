@@ -8,7 +8,7 @@ private:
 	struct  node
 	{
 		node* parent;
-		node* children[28]{};
+		node* children[32]{};
 		int count_word;
 		node() : count_word(0)
 		{
@@ -82,8 +82,8 @@ public:
 	void find_max(int length = 0)
 	{
 		int ans = 0;
-		
-		std::set<std::string> set;
+
+		std::vector<std::pair<std::string, int> > vec;
 		for (std::queue<std::pair<node*, int>> queue({ std::pair<node*, int>(root, 1) }); !queue.empty(); queue.pop())
 		{
 			for (auto& i : queue.front().first->children)
@@ -95,11 +95,16 @@ public:
 			}
 			if (queue.front().first->count_word > 0 && queue.front().second >= length)
 			{
-				ans++;				
-				set.insert(word(queue.front().first, queue.front().second));
+				ans++;
+				std::string s = word(queue.front().first, queue.front().second);
+				vec.emplace_back(std::pair<std::string, int>(s, queue.front().first->count_word));
 			}
 		}
-		std::cout << ans << '\n';
+		sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
+		for (int i = 1; i <= 50; i++)
+		{
+			std::cout << vec[i].first << " - " << vec[i].second << "\n";
+		}
 	}
 private:
 	void print_word(node* nd, const int& size)
