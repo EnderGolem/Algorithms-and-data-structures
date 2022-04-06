@@ -284,33 +284,35 @@ void split(string s, string*& arr)
 	arr = new string[16];
 	auto first = s.begin();
 	g = s.begin();
-	string basic_string = "";
-	if (n > 16)
-	{
-		for (int i = 0; i < n - 16; i++)
-		{
-			g = (find(g, s.end(), ','));
-			basic_string += s.substr(first - s.begin(), g - first);
-			++g;
-			first = g;
-		}
-	}
-	else
+	string fir = "";
+	string sec = "";
+	string thi = "";
+	while(true)
 	{
 
+		fir += sec;
+		sec = thi;
 		g = (find(g, s.end(), ','));
-		basic_string = s.substr(first - s.begin(), g - first);
+		thi = s.substr(first - s.begin(), g - first);
 		++g;
 		first = g;
+		if(thi == "N/A" || thi.length() == 4 && isdigit(thi[0]) && isdigit(thi[1]) && isdigit(thi[2]) && isdigit(thi[3]))
+			break;
+		
+
 	}
-	arr[0] = basic_string;
-	for (int i = 1; i < 16; i++)
+	
+	arr[0] = fir;
+	arr[1] = sec;
+	arr[2] = thi;
+	for (int i = 3; i < 15; i++)
 	{
 		g = (find(g, s.end(), ','));
 		arr[i] = s.substr(first - s.begin(), g - first);
 		++g;
 		first = g;
 	}
+	arr[15] = s.substr(first - s.begin(), s.end() - first);
 }
 //Задача 4. На основе приведённой базы компьютерных игр для каждого издателя указать суммарный доход по различным жанрам игр.
 void fourth()
@@ -375,15 +377,20 @@ void fifth()
 
 }
 
-//Men of War : Assault Squad, PC, 2011, Strategy, 1C Company, 0.01, 0.03, 0, 0.01, 0.05, 77, 21, 8.2, 93, "THQ, 1C, 1C Company", T
 
-//Wii Sports,Wii,2006,Sports,Nintendo
-//41.36 28.96 3.77 8.45 82.53,76,51,8,322,Nintendo,E
+void print_mine(string s)
+{
+	string* arr;
+	split(s, arr);
+	print(arr, 16);
+}
+
 int main()
 {
-
-	/*string* arr;
-	split("Triple Pack: Xbox Live Arcade Compilation,X360,2011,Misc,Microsoft Game Studios,0.03,0,0,0,0.03,,,tbd,,Various,T", arr);
-	print(arr, 16);*/
-	fifth();
+//	print_mine("Madden NFL 2004,PS2,N/A,Sports,Electronic Arts,4.26,0.26,0.01,0.71,5.23,94,29,8.5,140,EA Tiburon,E");
+	fourth();
+	//fifth();
 }
+
+//Madden NFL 2004,PS2,N/A,Sports,Electronic Arts,4.26,0.26,0.01,0.71,5.23,94,29,8.5,140,EA Tiburon,E
+//Men of War : Assault Squad, PC, 2011, Strategy, 1C Company, 0.01, 0.03, 0, 0.01, 0.05, 77, 21, 8.2, 93, "THQ, 1C, 1C Company", T
