@@ -44,9 +44,10 @@ public:
 	void plus_word(const char& c)
 	{
 
-		if( c <= 'a' || 'z' <= c)
+		if( c < 'a' || 'z' < c)
 		{
 			count_word();
+			return;
 		}
 		if (current->children[c - 97] == nullptr)
 		{
@@ -59,6 +60,7 @@ public:
 	}
 	void print_words(int length = 0)
 	{
+		int ans = 0;
 		for (std::queue<std::pair<node*, int>> queue({ std::pair<node*, int>(root, 1) }); !queue.empty(); queue.pop())
 		{
 			for (auto& i : queue.front().first->children)
@@ -70,9 +72,11 @@ public:
 			}
 			if (queue.front().first->count_word > 0 && queue.front().second >= length)
 			{
+				ans++;
 				print_word(queue.front().first, queue.front().second);
 			}
 		}
+		std::cout << ans << '\n';
 	}
 private:
 	void print_word(node* nd, const int& size)
