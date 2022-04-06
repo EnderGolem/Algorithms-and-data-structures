@@ -263,7 +263,7 @@ void print(string*& const arr, int n = 16)
 {
 	for (int i = 0; i < n; i++)
 	{
-		cout << arr[i] << ',';
+		cout << arr[i] << '|';
 	}
 	cout << '\n';
 }
@@ -287,7 +287,7 @@ void split(string s, string*& arr)
 	string fir = "";
 	string sec = "";
 	string thi = "";
-	while(true)
+	while (true)
 	{
 
 		fir += sec;
@@ -296,23 +296,26 @@ void split(string s, string*& arr)
 		thi = s.substr(first - s.begin(), g - first);
 		++g;
 		first = g;
-		if(thi == "N/A" || thi.length() == 4 && isdigit(thi[0]) && isdigit(thi[1]) && isdigit(thi[2]) && isdigit(thi[3]))
+		if (thi == "N/A" || thi.length() == 4 && isdigit(thi[0]) && isdigit(thi[1]) && isdigit(thi[2]) && isdigit(thi[3]))
 			break;
-		
+
 
 	}
-	
+
 	arr[0] = fir;
 	arr[1] = sec;
 	arr[2] = thi;
-	for (int i = 3; i < 15; i++)
+	for (int i = 3; i < 14; i++)
 	{
 		g = (find(g, s.end(), ','));
 		arr[i] = s.substr(first - s.begin(), g - first);
 		++g;
 		first = g;
 	}
-	arr[15] = s.substr(first - s.begin(), s.end() - first);
+
+	auto r = s.find_last_of(',');
+	arr[14] = s.substr(first - s.begin(), r - (first - s.begin()));
+	arr[15] = s.substr(r + 1);
 }
 //Задача 4. На основе приведённой базы компьютерных игр для каждого издателя указать суммарный доход по различным жанрам игр.
 void fourth()
@@ -342,9 +345,6 @@ void fourth()
 	ifs.close();
 
 }
-
-//Name, Platform, Year_of_Release, Genre, Publisher, NA_Sales, EU_Sales, JP_Sales, Other_Sales,
-//Global_Sales, Critic_Score, Critic_Count, User_Score, User_Count, Developer, Rating
 
 //Задача 5. Вычислить наиболее доходный жанр игровой индустрии по каждому году. 
 void fifth()
@@ -378,6 +378,42 @@ void fifth()
 }
 
 
+//Name, Platform, Year_of_Release, Genre, Publisher, NA_Sales, EU_Sales, JP_Sales, Other_Sales,
+//Global_Sales, Critic_Score, Critic_Count, User_Score, User_Count, Developer, Rating
+
+//Задача 6. Для каждого издателя выдать список из 5 наиболее доходных разработчиков (за всё время).
+void six()
+{
+	ifstream ifs("Video_Games.csv");
+	string s;
+	unordered_map<string, map<string, double>> mp;
+	getline(ifs, s);
+	while (getline(ifs, s))
+	{
+		string* arr;
+		split(s, arr);
+		mp[arr[4]][arr[14]] += atof(arr[9].c_str());
+		delete[] arr;
+	}
+	for (auto x : mp)
+	{
+		cout << "Publisher: " << x.first << '\n';
+		vector < pair < string, double >> vec;
+		for (auto y : x.second)
+		{
+			vec.push_back({ y.first,y.second });
+		}
+		sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
+		for (int i = 0; i < min(5, static_cast<int>(vec.size())); i++)
+		{
+			cout << "      " << vec[i].first << " " << vec[i].second << '\n';
+		}
+	}
+	ifs.close();
+
+}
+
+
 void print_mine(string s)
 {
 	string* arr;
@@ -387,10 +423,13 @@ void print_mine(string s)
 
 int main()
 {
-//	print_mine("Madden NFL 2004,PS2,N/A,Sports,Electronic Arts,4.26,0.26,0.01,0.71,5.23,94,29,8.5,140,EA Tiburon,E");
-	fourth();
+
+	//print_mine("Game Pons,WiiU,2012,Action,Warnerment,0.09,0.03,0,0.01,0.13,24,8,3.5,21,\"Phosphor Games Studio, LLC\",E");
+	//fourth();
 	//fifth();
+	six();
 }
 
 //Madden NFL 2004,PS2,N/A,Sports,Electronic Arts,4.26,0.26,0.01,0.71,5.23,94,29,8.5,140,EA Tiburon,E
 //Men of War : Assault Squad, PC, 2011, Strategy, 1C Company, 0.01, 0.03, 0, 0.01, 0.05, 77, 21, 8.2, 93, "THQ, 1C, 1C Company", T
+//Game Party: Champions,WiiU,2012,Action,Warner Bros. Interactive Entertainment,0.09,0.03,0,0.01,0.13,24,8,3.5,21,"Phosphor Games Studio, LLC",E
