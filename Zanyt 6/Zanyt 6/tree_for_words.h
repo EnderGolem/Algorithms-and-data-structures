@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 #include <set>
-
+//Usless
 class tree_for_words
 {
 private:
