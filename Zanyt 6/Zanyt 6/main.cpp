@@ -74,7 +74,6 @@ void realize_tree_for_words_string()
 
 void realize_tree_for_words_char()
 {
-	cout << int('\r') << int('\n') << '\n';
 	tree_for_words tree{};
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 	std::ifstream in("War and Peace.txt");
@@ -86,6 +85,8 @@ void realize_tree_for_words_char()
 		while(in.peek()  != EOF)
 		{
 			c = in.get();
+			if ('A' <= c && c <= 'Z') // ѕо приколу сравни потом без такого сравнени€
+				c += 32;
 			tree.plus_word(c);
 		}
 	}
@@ -96,10 +97,14 @@ void realize_tree_for_words_char()
 	in.close();
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
 	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
+
+	tree.find_max();
+	chrono::high_resolution_clock::time_point t3 = chrono::high_resolution_clock::now();
+	cout << chrono::duration_cast<chrono::milliseconds>(t3 - t2).count() <<" "<< chrono::duration_cast<chrono::milliseconds>(t3 - t1).count() << '\n';
 }
 
 int main()
 {
-	realize_set();
-	//realize_tree_for_words_string();
+	//realize_set();
+	realize_tree_for_words_char();
 }
