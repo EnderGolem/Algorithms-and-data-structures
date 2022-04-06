@@ -193,7 +193,58 @@ void realize_unordered_map_second()
 	{
 		vec.emplace_back(x.first, x.second);
 	}
-	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second < y.second; });
+	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
+	for (int i = 0; i < 50; i++)
+	{
+		std::cout << vec[i].first << " - " << vec[i].second << "\n";
+	}
+}
+
+void realize_unordered_map_third()
+{
+
+	unordered_map<string, int> mp;
+	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+	std::ifstream in("War and Peace.txt");
+	if (in.is_open())
+	{
+		string s;
+		while (in >> s)
+		{
+			if (s.back() < 'a' || s.back() > 'z')
+			{
+				s.pop_back();
+				while (s.length() > 0 && (s.back() < 'a' || s.back() > 'z'))
+				{
+					s.pop_back();
+				}
+
+			}
+			while (s.length() > 0 && !('A' <= s[0] && s[0] <= 'z'))
+				s.erase(0);
+
+			if (s.length() > 0 && 'A' <= s[0] && s[0] <= 'Z')
+				s[0] += 32;
+			sort(s.begin(), s.end());
+			if (!s.empty())
+				mp[s]++;
+		}
+
+	}
+	else
+	{
+		cout << "Couldn't open file\n";
+	}
+	in.close();
+	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	cout << mp.size() << '\n';
+	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
+	vector<pair<string, int>> vec;
+	for (auto& x : mp)
+	{
+		vec.emplace_back(x.first, x.second);
+	}
+	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
 	for (int i = 0; i < 50; i++)
 	{
 		std::cout << vec[i].first << " - " << vec[i].second << "\n";
@@ -203,10 +254,5 @@ void realize_unordered_map_second()
 
 int main()
 {
-	cout << "---------------------------\n";
-	realize_unordered_map_second();
-	cout << "---------------------------\n";
-//	realize_tree_for_words_char();
-	cout << "---------------------------\n";
-	cout << static_cast<char>('A' + 32) << '\n';
+	realize_unordered_map_third();
 }
