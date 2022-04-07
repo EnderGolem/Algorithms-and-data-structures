@@ -139,6 +139,7 @@ void realize_unordered_map_first()
 	{
 		cout << "Couldn't open file\n";
 	}
+	//VASHNO препод, сказал, что можно использовать кучу, для того, чтобы сократить время, не создавая вектор
 	in.close();
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
 	cout << mp.size() << '\n';
@@ -201,11 +202,11 @@ void realize_unordered_map_second()
 		std::cout << vec[i].first << " - " << vec[i].second << "\n";
 	}
 }
-
+//VASHNO неправильно релизованно
 void realize_unordered_map_third()
 {
 
-	unordered_map<string, int> mp;
+	unordered_map<string, vector<string>> mp;
 	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 	std::ifstream in("War and Peace.txt");
 	if (in.is_open())
@@ -226,10 +227,11 @@ void realize_unordered_map_third()
 				s.erase(0);
 
 			if (s.length() > 0 && 'A' <= s[0] && s[0] <= 'Z')
-				s[0] += 32;
+				s[0] += 32;  //VASHNO такое не желательно это быстрее, но если будет другой алфавит, то все сломается, плюс например ё находится вообще хрен знает где
+			string s_not_sort = s;
 			sort(s.begin(), s.end());
 			if (!s.empty())
-				mp[s]++;
+				mp[s].push_back(s_not_sort);
 		}
 
 	}
@@ -241,15 +243,16 @@ void realize_unordered_map_third()
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
 	cout << mp.size() << '\n';
 	cout << chrono::duration_cast<chrono::milliseconds>(t2 - t1).count() << '\n';
-	vector<pair<string, int>> vec;
+	vector<pair<string, vector<string>>> vec;
 	for (auto& x : mp)
 	{
 		vec.emplace_back(x.first, x.second);
 	}
-	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second > y.second; });
-	for (int i = 0; i < 50; i++)
+	sort(vec.begin(), vec.end(), [](auto& x, auto& y) {return x.second.size() > y.second.size(); });
+	cout << vec[0].first << '\n';
+	for (auto x : vec[0].second)
 	{
-		std::cout << vec[i].first << " - " << vec[i].second << "\n";
+		cout << x << '\n';
 	}
 }
 
@@ -267,7 +270,6 @@ void print(string*& const arr, int n = 16)
 	}
 	cout << '\n';
 }
-
 void split(string s, string*& arr)
 {
 	int n = 1;
@@ -423,11 +425,14 @@ void print_mine(string s)
 
 int main()
 {
+	//realize_unordered_map_first();
+	//realize_unordered_map_second();
+	//realize_unordered_map_third();
 
 	//print_mine("Game Pons,WiiU,2012,Action,Warnerment,0.09,0.03,0,0.01,0.13,24,8,3.5,21,\"Phosphor Games Studio, LLC\",E");
 	//fourth();
 	//fifth();
-	six();
+	//six();
 }
 
 //Madden NFL 2004,PS2,N/A,Sports,Electronic Arts,4.26,0.26,0.01,0.71,5.23,94,29,8.5,140,EA Tiburon,E
