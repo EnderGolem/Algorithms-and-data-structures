@@ -1,12 +1,20 @@
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <stack>
+#include <unordered_map>
+
+
+
+
+
+
 
 
 using namespace  std;
 
 
-
-void correct_budget(int &n, int &cost, int* &budgets, int* &ans, int &sum_b, int i)
+void correct_budget(int& n, int& cost, int*& budgets, int*& ans, int& sum_b, int i)
 {
 	int b = budgets[i];
 	int extra = (sum_b - cost) / (n - i);
@@ -65,12 +73,75 @@ void the_gift()
 		cout << ans[i] << '\n';
 	}
 	cout << '\n';
+	delete[] ans;
+	delete[] budgets;
 
 
 }
 
+//https://www.codingame.com/training/medium/magic-stones
+void magic_stones_ver1()
+{
+	int n;
+	cin >> n; cin.ignore();
+	map<int, int> levels;
+	for (int i = 0; i < n; i++) {
+		int level;
+		cin >> level; cin.ignore();
+		levels[level] ++;
+	}
+	int ans = 0;
+	for (auto lv : levels)
+	{
+		if (lv.second / 2 != 0)
+			levels[lv.first + 1] += lv.second / 2;    //Presumably, here O(logn)   , but we go for map for O(n * logn) => here O(n * logn * logn)
+ 		levels[lv.first] = lv.second % 2;
+		if (lv.second % 2 != 0)
+			ans++;
+	}
+	cout << levels.size()<<'\n';
+	cout << ans << '\n';
+}
+//I think it is faster than ver1.
+void magic_stones_ver2()
+{
+	int n;
+	cin >> n; cin.ignore();
+	map<int, int> levels;
+	for (int i = 0; i < n; i++) {
+		int level;
+		cin >> level; cin.ignore();
+		levels[level] ++;
+	}
+	stack<pair<int, int>> st;
+	st.push({ 0,0 });
+	for (auto it = levels.rbegin();it != levels.rend(); ++it)
+	{
+		st.push({ it->first,it->second});
+	}
+
+
+	int ans = 0;
+	while(st.top().first != 0)
+	{
+		ans += st.top().second % 2;
+		auto t = st.top();
+		st.pop();
+		if(t.second  > 0 && st.top().first  != t.first + 1)
+		{
+			st.push({ t.first + 1,t.second / 2 });
+		}
+		else
+		{
+			st.top().second += (t.second / 2);
+		}
+	}
+	cout << ans << '\n';
+}
+
+
 
 int main()
 {
-	the_gift();
+	magic_stones_ver2();
 }
