@@ -95,11 +95,11 @@ void magic_stones_ver1()
 	{
 		if (lv.second / 2 != 0)
 			levels[lv.first + 1] += lv.second / 2;    //Presumably, here O(logn)   , but we go for map for O(n * logn) => here O(n * logn * logn)
- 		levels[lv.first] = lv.second % 2;
+		levels[lv.first] = lv.second % 2;
 		if (lv.second % 2 != 0)
 			ans++;
 	}
-	cout << levels.size()<<'\n';
+	cout << levels.size() << '\n';
 	cout << ans << '\n';
 }
 //I think it is faster than ver1.
@@ -115,19 +115,19 @@ void magic_stones_ver2()
 	}
 	stack<pair<int, int>> st;
 	st.push({ 0,0 });
-	for (auto it = levels.rbegin();it != levels.rend(); ++it)
+	for (auto it = levels.rbegin(); it != levels.rend(); ++it)
 	{
-		st.push({ it->first,it->second});
+		st.push({ it->first,it->second });
 	}
 
 
 	int ans = 0;
-	while(st.top().first != 0)
+	while (st.top().first != 0)
 	{
 		ans += st.top().second % 2;
 		auto t = st.top();
 		st.pop();
-		if(t.second  > 0 && st.top().first  != t.first + 1)
+		if (t.second > 0 && st.top().first != t.first + 1)
 		{
 			st.push({ t.first + 1,t.second / 2 });
 		}
@@ -139,9 +139,60 @@ void magic_stones_ver2()
 	cout << ans << '\n';
 }
 
+struct rect
+{
+	struct pnt
+	{
+		int x, y;
+	};
+	pnt first;
+	pnt second;
+};
+//https://www.codingame.com/training/medium/goro-want-chocolate
+void goro_want_chocolate()
+{
+	int h;
+	int w;
+	cin >> h >> w; cin.ignore();
+	int ans = 0;
+	vector<vector<int>> matrix(w + 1, vector<int>(h + 1, INT32_MAX));
+	vector<vector<rect>> coordinate(w, vector<rect>(h, { {-1,-1},{-1,-1} }));
 
+	for (int i = 0; i <= w; i++)	
+		matrix[i][0] = 0;
+	for (int i = 0; i <= h; i++)	
+		matrix[0][i] = 0;
+	
+	for (int x = 1; x <= w; x++)
+	{
+		for (int y = 1; y <= h; y++)
+		{
+			for (int z = 0; x + z <= w && y + z <= h; z++)
+			{
+				int sum = matrix[x - 1][y] + matrix[x][y - 1] + 1;
+				
+				if (matrix[x + z][y + z] > sum)
+				{
+					matrix[x + z][y + z] = sum;
+					for (int f = 0; f <= z; f++)
+					{
+						matrix[x + z][y + f] = min(matrix[x + z][y + f], sum);
+						matrix[x + f][y + z] = min(matrix[x + f][y + z], sum);
+					}
+				}
+			}
+			cout << x << ' ' << y << '\n';
+			for_each(matrix.begin(), matrix.end(), [](auto x)
+				{for_each(x.begin(), x.end(), [](int y) {cout << y << ' '; }); cout << '\n'; });
+			cout << '\n';
+
+		}
+	}
+	cout << matrix[w][h] << '\n';
+
+}
 
 int main()
 {
-	magic_stones_ver2();
+	goro_want_chocolate();
 }
