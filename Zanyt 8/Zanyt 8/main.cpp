@@ -155,40 +155,21 @@ void goro_want_chocolate()
 	int w;
 	cin >> h >> w; cin.ignore();
 	int ans = 0;
-	vector<vector<int>> matrix(w + 1, vector<int>(h + 1, INT32_MAX));
-	vector<vector<rect>> coordinate(w, vector<rect>(h, { {-1,-1},{-1,-1} }));
-
-	for (int i = 0; i <= w; i++)	
-		matrix[i][0] = 0;
-	for (int i = 0; i <= h; i++)	
-		matrix[0][i] = 0;
-	
-	for (int x = 1; x <= w; x++)
+	while (h > 0 && w > 0)
 	{
-		for (int y = 1; y <= h; y++)
+		cout << w << ' ' << h << '\n';
+		if (w < h)
 		{
-			for (int z = 0; x + z <= w && y + z <= h; z++)
-			{
-				int sum = matrix[x - 1][y] + matrix[x][y - 1] + 1;
-				
-				if (matrix[x + z][y + z] > sum)
-				{
-					matrix[x + z][y + z] = sum;
-					for (int f = 0; f <= z; f++)
-					{
-						matrix[x + z][y + f] = min(matrix[x + z][y + f], sum);
-						matrix[x + f][y + z] = min(matrix[x + f][y + z], sum);
-					}
-				}
-			}
-			cout << x << ' ' << y << '\n';
-			for_each(matrix.begin(), matrix.end(), [](auto x)
-				{for_each(x.begin(), x.end(), [](int y) {cout << y << ' '; }); cout << '\n'; });
-			cout << '\n';
-
+			ans += h / w;
+			h -= w;
+		}
+		else
+		{
+			ans += w / h;
+			w -= h;
 		}
 	}
-	cout << matrix[w][h] << '\n';
+	cout << ans << '\n';
 
 }
 
