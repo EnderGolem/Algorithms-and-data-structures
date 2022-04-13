@@ -139,15 +139,37 @@ void magic_stones_ver2()
 	cout << ans << '\n';
 }
 
-struct rect
+int rectangle[151][151];
+int recur(int h, int w)
 {
-	struct pnt
+	
+	if (h < w)
+		swap(w, h);
+	//cout << h << ' ' << w << '\n';
+	if (h == w)
+		rectangle[h][w] = 1;
+	if (rectangle[h][w] != 0)
+		return rectangle[h][w];
+	
+
+	vector<int> arr(h + 1, INT32_MAX);
+	arr[0] = 0;
+	for (int x = 0; x <= h; x++)
 	{
-		int x, y;
-	};
-	pnt first;
-	pnt second;
-};
+			for (int z = 1; x + z <= h && z <= w; z++)
+			
+			{
+				if(rectangle[w][z] == 0)
+					 recur(w, z);
+				
+				arr[x + z] = min(arr[x + z], arr[x] + rectangle[w][z]);
+			}
+		
+	}
+	rectangle[h][w] = arr.back();
+//	cout << h << ' ' << w << " "<<arr.back() << '\n';
+	return  arr.back();
+}
 //https://www.codingame.com/training/medium/goro-want-chocolate
 void goro_want_chocolate()
 {
@@ -155,22 +177,9 @@ void goro_want_chocolate()
 	int w;
 	cin >> h >> w; cin.ignore();
 	int ans = 0;
-	while (h > 0 && w > 0)
-	{
-		cout << w << ' ' << h << '\n';
-		if (w < h)
-		{
-			ans += h / w;
-			h -= w;
-		}
-		else
-		{
-			ans += w / h;
-			w -= h;
-		}
-	}
-	cout << ans << '\n';
-
+	rectangle[1][1] = 1;
+	
+	cout << recur(h,w) << '\n';
 }
 
 int main()
