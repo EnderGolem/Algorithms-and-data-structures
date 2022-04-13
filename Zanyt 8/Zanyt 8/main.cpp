@@ -138,50 +138,47 @@ void magic_stones_ver2()
 	}
 	cout << ans << '\n';
 }
-
-int rectangle[151][151];
-int recur(int h, int w)
+short min(short a, short b)
+{
+	if (a < b)
+		return  a;
+	return  b;
+}
+short rectangle[151][151];
+int recur(short h, short w)
 {
 	
-	if (h < w)
-		swap(w, h);
-	//cout << h << ' ' << w << '\n';
-	if (h == w)
-		rectangle[h][w] = 1;
-	if (rectangle[h][w] != 0)
-		return rectangle[h][w];
+	if (h == 1) return rectangle[h][w] = w;
+	if (w == h) return rectangle[h][w] = 1;
+	int ans = INT16_MAX;
 	
-
-	vector<int> arr(h + 1, INT32_MAX);
-	arr[0] = 0;
-	for (int x = 0; x <= h; x++)
-	{
-			for (int z = 1; x + z <= h && z <= w; z++)
-			
-			{
-				if(rectangle[w][z] == 0)
-					 recur(w, z);
-				
-				arr[x + z] = min(arr[x + z], arr[x] + rectangle[w][z]);
-			}
-		
+	for (short c = 1; c <= w / 2; c++) {
+		if (rectangle[h][c] == 0)
+			recur(h, c);
+		if (rectangle[h][w - c] == 0)
+			recur(h, w - c);
+		ans = min(ans, rectangle[h][c] + rectangle[h][w - c]);
 	}
-	rectangle[h][w] = arr.back();
-//	cout << h << ' ' << w << " "<<arr.back() << '\n';
-	return  arr.back();
+	
+	for (short c = 1; c <= h / 2; c++) {
+		if (rectangle[c][w] == 0)
+			recur(c, w);
+		if (rectangle[h - c][w] == 0)
+			recur(h - c, w);
+		ans = min(ans, rectangle[c][w] + rectangle[h - c][w]);
+	}
+
+
+	return  rectangle[h][w] = ans;
 }
 //https://www.codingame.com/training/medium/goro-want-chocolate
 void goro_want_chocolate()
 {
-	int h;
-	int w;
+	short h;
+	short w;
 	cin >> h >> w; cin.ignore();
-	int ans = 0;
-	rectangle[1][1] = 1;
-	
-	cout << recur(h,w) << '\n';
+	cout << recur(h, w) << '\n';
 }
-
 int main()
 {
 	goro_want_chocolate();
