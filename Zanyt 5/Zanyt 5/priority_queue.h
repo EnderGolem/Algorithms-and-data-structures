@@ -23,7 +23,7 @@ namespace my
 		{
 			build_heap(mas, size);
 		}
-		void add(_Ty x)
+		void push(_Ty x)
 		{
 			heap_insert(x);
 		}
@@ -58,17 +58,15 @@ namespace my
 				{
 					new_cont.push_back(cont2[y]);
 					y++;
-					size++;
 				}
 				else
 				{
 					new_cont.push_back(cont[i]);
 					i++;
-					size++;
 				}
-				if (new_cont[size - 1] > new_cont[parent(size - 1)])
+				if (new_cont[new_cont.size - 1] > new_cont[parent(new_cont.size - 1)])
 				{
-					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
+					std::swap(new_cont[new_cont.size - 1], new_cont[parent(new_cont.size - 1)]);
 				}
 			}
 			while (i < cont.size())
@@ -76,32 +74,30 @@ namespace my
 				new_cont.push_back(cont[i]);
 				i++;
 				size++;
-				if (new_cont[size - 1] > new_cont[parent(size - 1)])
+				if (new_cont[new_cont.size - 1] > new_cont[parent(new_cont.size - 1)])
 				{
-					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
+					std::swap(new_cont[new_cont.size - 1], new_cont[parent(new_cont.size - 1)]);
 				}
 			}
 			while (y < cont2.size())
 			{
 				new_cont.push_back(cont2[y]);
 				y++;
-				size++;
-				if (new_cont[size - 1] > new_cont[parent(size - 1)])
+				if (new_cont[new_cont.size - 1] > new_cont[parent(new_cont.size - 1)])
 				{
-					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
+					std::swap(new_cont[new_cont.size - 1], new_cont[parent(new_cont.size - 1)]);
 				}
 			}
-
 			cont = new_cont;
 		}
 		void heapify(int i)
 		{
-			assert(i >= 0 && i < size);
+			assert(i >= 0 && i < cont.size());
 			while (true) {
 				int largest = i;
-				if (left(i) < size && cmp(cont[largest], cont[left(i)]))
+				if (left(i) < cont.size() && cmp(cont[largest], cont[left(i)]))
 					largest = left(i);
-				if (right(i) < size && cmp(cont[largest], cont[right(i)]))
+				if (right(i) < cont.size() && cmp(cont[largest], cont[right(i)]))
 					largest = right(i);
 				if (i == largest)
 					break;
@@ -109,7 +105,17 @@ namespace my
 				i = largest;
 			}
 		}
+		value_type top()
+		{
+			return cont.front();
+		}
+		void pop()
+		{
+			cont[0]= cont.back();
+			cont.pop_back();
+			heapify(0);
 
+		}
 		friend std::ostream& operator<<(std::ostream& os, const priority_queue& queue)
 		{
 			for (const auto& x : queue.cont)
@@ -118,16 +124,17 @@ namespace my
 			}
 			return os;
 		}
+		size_t size()
+		{
+			return cont.size();
+		}
 	private:
 		container_type cont;
-		int size = 0;
-
 	
 		void heap_insert(_Ty x)
 		{
 			cont.push_back(x);
-			size++;
-			int i = size - 1;
+			int i = cont.size() - 1;
 			while (i > 0 && cmp(cont[parent(i)], cont[i]))
 			{
 				std::swap(cont[i], cont[parent(i)]);
@@ -136,17 +143,17 @@ namespace my
 		}
 		int parent(int i)
 		{
-			assert(i >= 0 && i < size);
+			assert(i >= 0 && i < cont.size());
 			return (i - 1) / 2;
 		}
 		int left(int i)
 		{
-			assert(i >= 0 && i < size);
+			assert(i >= 0 && i < cont.size());
 			return 2 * i + 1;
 		}
 		int right(int i)
 		{
-			assert(i >= 0 && i < size);
+			assert(i >= 0 && i < cont.size());
 			return 2 * i + 2;
 		}
 	};
