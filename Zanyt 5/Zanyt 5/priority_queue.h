@@ -109,8 +109,17 @@ namespace my
 				i = largest;
 			}
 		}
+
+		friend std::ostream& operator<<(std::ostream& os, const priority_queue& queue)
+		{
+			for (const auto& x : queue.cont)
+			{
+				os << x << "; ";
+			}
+			return os;
+		}
 	private:
-		_Container cont;
+		container_type cont;
 		int size = 0;
 
 	

@@ -19,6 +19,6 @@ int main()
 	fs.build_heap(b, 5);
 	fs.print();
 	sf.merge(fs);
-	sf.print();
+	cout << sf;
 	
 }
