@@ -45,30 +45,52 @@ namespace my
 				heapify(i);
 			}
 		}
-		void merge(priority_queue cont2<value_type,container_type,value_compare>)
+		void merge(priority_queue<value_type, container_type, value_compare> pri_queue)
 		{
-			container_type<value_type> new_cont;
+			auto cont2 = pri_queue.cont;
+			container_type new_cont;
 			int i = 0;
 			int y = 0;
 			size = 0;
-			for (; i < sf.size() && y < cont2.size(); )
+			for (; i < cont.size() && y < cont2.size(); )
 			{
 				if (cont[i] < cont2[y])
 				{
 					new_cont.push_back(cont2[y]);
 					y++;
+					size++;
 				}
 				else
 				{
 					new_cont.push_back(cont[i]);
 					i++;
+					size++;
 				}
 				if (new_cont[size - 1] > new_cont[parent(size - 1)])
 				{
 					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
 				}
 			}
-
+			while (i < cont.size())
+			{
+				new_cont.push_back(cont[i]);
+				i++;
+				size++;
+				if (new_cont[size - 1] > new_cont[parent(size - 1)])
+				{
+					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
+				}
+			}
+			while (y < cont2.size())
+			{
+				new_cont.push_back(cont2[y]);
+				y++;
+				size++;
+				if (new_cont[size - 1] > new_cont[parent(size - 1)])
+				{
+					std::swap(new_cont[size - 1], new_cont[parent(size - 1)]);
+				}
+			}
 
 			cont = new_cont;
 		}
