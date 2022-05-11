@@ -29,21 +29,26 @@ namespace my
 	template <class _Kty, class _Hasher = line_hash<hash_mod>, class _Keyeq = std::equal_to<_Kty>, class _Alloc = std::allocator<_Kty>>
 	class unordered_set
 	{
-		int size;
+		int capasity;
 		_Kty* tabl;
 		bool* empty;
+		int size;
 
 	public:
 		using hasher = _Hasher;
 		using value_type = _Kty;
 		_Hasher get_hash = _Hasher();
-
-		unordered_set(int size = 2000) : size(size)
+		int get_size()
 		{
-			tabl = new value_type[size];
-			empty = new bool[size];
+			return size;
 		}
-		unordered_set(std::initializer_list<value_type> lst, int size = 2000) : size(size)
+		unordered_set(int capasity = 2000) : capasity(capasity)
+		{
+			tabl = new value_type[capasity];
+			empty = new bool[capasity];
+
+		}
+		unordered_set(std::initializer_list<value_type> lst, int capasity = 2000) : capasity(capasity)
 		{
 			for each (auto x in lst)
 			{
@@ -53,17 +58,17 @@ namespace my
 		/// <summary>
 		/// Insert element, return count of collision
 		/// </summary>
-		int insert(value_type value)
+		void insert(value_type value)
 		{
-			return hash_insert(value);
+			hash_insert(value);
 		}
 
 		bool has(value_type value)
 		{
 
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < capasity; i++)
 			{
-				int j = get_hash(value, i, size);
+				int j = get_hash(value, i, capasity);
 				if (empty[j])
 					return false;
 				if (tabl[j] == value)
@@ -75,14 +80,16 @@ namespace my
 		}
 		bool erase(value_type value)
 		{
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < capasity; i++)
 			{
-				int j = get_hash(value, i, size);
+				int j = get_hash(value, i, capasity);
 				if (empty[j])
 					return false;
 				if (tabl[j] == value)
 				{
-					empty[j] = false;
+					size--;
+					empty[j] = true;
+					return true;
 				}
 			}
 			return false;
@@ -93,20 +100,23 @@ namespace my
 		}
 		void print()
 		{
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < capasity; i++)
 			{
 				if (tabl[i] > 0)
-					std::cout << i << " " << empty[i] << " " << get_hash(tabl[i], 0, size) << " " << tabl[i] << '\n';
+					std::cout << i << " " << empty[i] << " " << get_hash(tabl[i], 0, capasity) << " " << tabl[i] << '\n';
 			}
 		}
 	private:
 		void hash_insert(value_type k)
 		{
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < capasity; i++)
 			{
-				int j = get_hash(k, i, size);
+				int j = get_hash(k, i, capasity);
+				if(tabl[j] == k)
+					return;
 				if (empty[j])
 				{
+					size++;
 					empty[j] = false;
 					tabl[j] = k;
 					return;
