@@ -44,12 +44,26 @@ namespace my
 		}
 		unordered_set(int capasity = 2000) : capasity(capasity)
 		{
+			size = 0;
 			tabl = new value_type[capasity];
 			empty = new bool[capasity];
+			for(int i = 0;i<capasity;i++)
+			{
+				tabl[i] = NULL;
+				empty[i] = true;
+			}
 
 		}
 		unordered_set(std::initializer_list<value_type> lst, int capasity = 2000) : capasity(capasity)
 		{
+			size = 0;
+			tabl = new value_type[capasity];
+			empty = new bool[capasity];
+			for (int i = 0; i < capasity; i++)
+			{
+				tabl[i] = NULL;
+				empty[i] = true;
+			}
 			for each (auto x in lst)
 			{
 				insert(x);
@@ -69,12 +83,10 @@ namespace my
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(value, i, capasity);
-				if (empty[j])
-					return false;
-				if (tabl[j] == value)
-				{
+				if (tabl[j] == NULL)
+					return  false;
+				if (tabl[j] == value)				
 					return true;
-				}
 			}
 			return false;
 		}
@@ -83,20 +95,25 @@ namespace my
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(value, i, capasity);
-				if (empty[j])
-					return false;
-				if (tabl[j] == value)
+				if(tabl[j] != NULL)
 				{
-					size--;
-					empty[j] = true;
-					return true;
+					if(tabl[j] == value && !empty[j])
+					{
+						empty[j] = true;
+						size--;
+						return  true;
+					}
 				}
+				else
+					return  false;		
+
 			}
 			return false;
 		}
 		~unordered_set()
 		{
 			delete[] tabl;
+			delete[] empty;
 		}
 		void print()
 		{
@@ -112,13 +129,14 @@ namespace my
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(k, i, capasity);
-				if(tabl[j] == k)
+				if(!empty[j] && tabl[j] == k)
 					return;
-				if (empty[j])
+				if (tabl[j] == NULL || empty[j])
 				{
 					size++;
 					empty[j] = false;
 					tabl[j] = k;
+				//	std::cout << size << ' ' << tabl[j] << '\n';
 					return;
 				}
 			}

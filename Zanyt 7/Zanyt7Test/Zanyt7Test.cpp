@@ -9,14 +9,7 @@ namespace Zanyt7Test
 	TEST_CLASS(Zanyt7Test)
 	{
 	public:
-
-		TEST_METHOD(TestBool)
-		{
-			bool* f;
-			f = new bool[10];
-			if(!f[0])
-				Assert::IsTrue(false);
-		}
+		
 		TEST_METHOD(TestInsert)
 		{
 			my::unordered_set<int> st;
@@ -52,7 +45,14 @@ namespace Zanyt7Test
 			{
 				st.erase(i);
 			}
+			Assert::IsTrue(st.get_size() == 500);
+
+			for (int i = 500; i <= 1000; i++)
+			{
+				st.erase(i);
+			}
 			Assert::IsTrue(st.get_size() == 0);
+
 			for (int i = 1; i <= 2000; i++)
 			{
 				st.insert(i);
