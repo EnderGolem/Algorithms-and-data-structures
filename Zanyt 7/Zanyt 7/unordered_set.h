@@ -26,7 +26,7 @@ namespace my
 		}
 	};
 
-	template <class _Kty, class _Hasher = line_hash<hash_mod>, class _Keyeq = equal_to<_Kty>, class _Alloc = allocator<_Kty>>
+	template <class _Kty, class _Hasher = line_hash<hash_mod>, class _Keyeq = std::equal_to<_Kty>, class _Alloc = std::allocator<_Kty>>
 	class unordered_set
 	{
 		int size;
@@ -55,7 +55,7 @@ namespace my
 		/// </summary>
 		int insert(value_type value)
 		{
-		  return hash_insert(value);
+			return hash_insert(value);
 		}
 
 		bool has(value_type value)
@@ -65,10 +65,24 @@ namespace my
 			{
 				int j = get_hash(value, i, size);
 				if (empty[j])
-					return false;				
+					return false;
 				if (tabl[j] == value)
 				{
 					return true;
+				}
+			}
+			return false;
+		}
+		bool erase(value_type value)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				int j = get_hash(value, i, size);
+				if (empty[j])
+					return false;
+				if (tabl[j] == value)
+				{
+					empty[j] = false;
 				}
 			}
 			return false;
@@ -82,7 +96,7 @@ namespace my
 			for (int i = 0; i < size; i++)
 			{
 				if (tabl[i] > 0)
-					std::cout << i << " " << get_hash(tabl[i], 0, size) << " " << tabl[i] << '\n';
+					std::cout << i << " " << empty[i] << " " << get_hash(tabl[i], 0, size) << " " << tabl[i] << '\n';
 			}
 		}
 	private:
@@ -91,11 +105,11 @@ namespace my
 			for (int i = 0; i < size; i++)
 			{
 				int j = get_hash(k, i, size);
-				if (empty[j]) 
+				if (empty[j])
 				{
 					empty[j] = false;
 					tabl[j] = k;
-					return; 
+					return;
 				}
 			}
 			assert(true);
