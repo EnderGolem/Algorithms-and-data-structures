@@ -80,5 +80,19 @@ namespace Zanyt7Test
 				Assert::IsFalse(st.has(i));
 			}
 		}
+		TEST_METHOD(TestFull)
+		{
+			my::unordered_set<int> st;
+			for (int i = 1; i <= 2000; i++)
+			{
+				st.insert(i);
+			}
+			Assert::IsTrue(st.get_size() == 2000);
+			for (int i = 1; i <= 2000; i++)
+			{
+				Assert::IsTrue(st.has(i));
+			}
+
+		}
 	};
 }
