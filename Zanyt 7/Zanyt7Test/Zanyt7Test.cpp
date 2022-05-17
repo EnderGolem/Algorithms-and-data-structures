@@ -94,5 +94,25 @@ namespace Zanyt7Test
 			}
 
 		}
+		TEST_METHOD(TestSome)
+		{
+
+			my::unordered_set<int> st;
+			st.insert(1);
+			st.insert(702);
+			st.insert(2);
+			st.insert(3);
+			st.erase(2);
+			Assert::IsTrue(st.get_size() == 3);
+			st.insert(3);
+			Assert::IsTrue(st.get_size() == 3);
+
+
+			st.refresh();
+			st.insert(1);
+			st.erase(1);
+			Assert::IsTrue(!st.has(1));
+
+		}
 	};
 }

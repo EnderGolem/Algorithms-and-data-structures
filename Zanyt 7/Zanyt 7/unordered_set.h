@@ -4,7 +4,7 @@
 
 namespace my
 {
-
+	enum state { unused, erased, used };
 	class hash_mod
 	{
 		const int MOD = 701;
@@ -31,7 +31,7 @@ namespace my
 	{
 		int capasity;
 		_Kty* tabl;
-		bool* empty;
+		state* states;
 		int size;
 
 	public:
@@ -46,11 +46,11 @@ namespace my
 		{
 			size = 0;
 			tabl = new value_type[capasity];
-			empty = new bool[capasity];
+			states = new state[capasity];
 			for(int i = 0;i<capasity;i++)
 			{
 				tabl[i] = NULL;
-				empty[i] = true;
+				states[i] = unused;
 			}
 
 		}
@@ -58,11 +58,11 @@ namespace my
 		{
 			size = 0;
 			tabl = new value_type[capasity];
-			empty = new bool[capasity];
+			states = new bool[capasity];
 			for (int i = 0; i < capasity; i++)
 			{
 				tabl[i] = NULL;
-				empty[i] = true;
+				states[i] = unused;
 			}
 			for each (auto x in lst)
 			{
@@ -83,7 +83,7 @@ namespace my
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(value, i, capasity);
-				if (tabl[j] == NULL)
+				if (states[j] == unused )
 					return  false;
 				if (tabl[j] == value)				
 					return true;
@@ -95,11 +95,11 @@ namespace my
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(value, i, capasity);
-				if(tabl[j] != NULL)
+				if(states[j] != unused)
 				{
-					if(tabl[j] == value && !empty[j])
+					if(tabl[j] == value && states[j] == used)
 					{
-						empty[j] = true;
+						states[j] = erased;
 						size--;
 						return  true;
 					}
@@ -113,30 +113,42 @@ namespace my
 		~unordered_set()
 		{
 			delete[] tabl;
-			delete[] empty;
+			delete states;
 		}
 		void print()
 		{
 			for (int i = 0; i < capasity; i++)
 			{
 				if (tabl[i] > 0)
-					std::cout << i << " " << empty[i] << " " << get_hash(tabl[i], 0, capasity) << " " << tabl[i] << '\n';
+					std::cout << i << " " << states[i] << " " << get_hash(tabl[i], 0, capasity) << " " << tabl[i] << '\n';
 			}
 		}
+		void refresh()
+		{
+			size = 0;
+			for (int i = 0; i < capasity; i++)
+			{
+				tabl[i] = NULL;
+				states[i] = unused;
+			}
+
+		}
 	private:
+		
 		void hash_insert(value_type k)
 		{
+			if(has(k))
+				return;
 			for (int i = 0; i < capasity; i++)
 			{
 				int j = get_hash(k, i, capasity);
-				if(!empty[j] && tabl[j] == k)
+				if(states[j] == used && tabl[j] == k)
 					return;
-				if (tabl[j] == NULL || empty[j])
+				if (states[j] == unused || states[j] == erased)
 				{
 					size++;
-					empty[j] = false;
+					states[j] = used;
 					tabl[j] = k;
-				//	std::cout << size << ' ' << tabl[j] << '\n';
 					return;
 				}
 			}
