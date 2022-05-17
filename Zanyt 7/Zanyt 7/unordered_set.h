@@ -85,7 +85,7 @@ namespace my
 				int j = get_hash(value, i, capasity);
 				if (states[j] == unused )
 					return  false;
-				if (tabl[j] == value)				
+				if (tabl[j] == value && states[j] != erased)				
 					return true;
 			}
 			return false;

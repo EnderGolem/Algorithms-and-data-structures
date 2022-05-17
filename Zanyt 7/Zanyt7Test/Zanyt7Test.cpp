@@ -96,7 +96,6 @@ namespace Zanyt7Test
 		}
 		TEST_METHOD(TestSome)
 		{
-
 			my::unordered_set<int> st;
 			st.insert(1);
 			st.insert(702);

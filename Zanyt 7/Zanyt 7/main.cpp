@@ -116,27 +116,16 @@ old
 my::unordered_set<int>  0.003483
 unordered_set<int>  0.007834
 set<int>  0.009365
+
+
+new
+my::unordered_set<int>  0.004217
+unordered_set<int>  0.007571
+set<int>  0.00894
  */
 int main()
-{
-	my::unordered_set<int> st;
-/*	st.insert(1);
-	st.insert(702);
-	st.insert(2);
-	st.insert(3);
-	st.erase(2);
-	cout << st.get_size() << '\n';
-	st.insert(3);
-	cout << st.get_size() << '\n';
-	st.print();
-	*/
-
-	st.insert(1);
-	st.erase(1);
-	cout << st.has(1) << '\n';
-	/*
+{	
 	testMyUnorderedSet();
 	testUnorderedSet();
-	testSet();
-	*/
+	testSet();	
 }
