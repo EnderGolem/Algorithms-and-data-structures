@@ -2,6 +2,7 @@
 #include <queue>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 
 using namespace  std;
@@ -40,11 +41,41 @@ void Dejkstra(const int& s = 0)
 					q.push({ dist[y] ,y });
 				}
 		}		
-
 	}
 }
 
 
+void Dejkstra_set(const int& s = 0)
+{
+
+	set<pair<int, int>> q;
+
+	dist[s] = 0;
+	q.insert({ 0,s });
+
+	while (!q.empty())
+	{
+		int current = q.begin()->second;
+		if (q.begin()->first > dist[current])
+		{
+			q.erase(q.begin());
+			continue;
+		}
+		q.erase(q.begin());
+		used[current] = true;
+		for (int y = 0; y < n; y++)
+		{
+			if (mas[current][y] >= 0)
+				if (dist[current] + mas[current][y] < dist[y])
+				{
+					q.erase({ dist[y],y });
+					dist[y] = dist[current] + mas[current][y];
+					trace[y] = current;
+					q.insert({ dist[y] ,y });
+				}
+		}
+	}
+}
 void print_test()
 {
 	if (trace[n - 1] == -1)
@@ -98,7 +129,7 @@ int main()
 		mas[a][b] = cost;
 		mas[b][a] = cost;
 	}
-	Dejkstra(0);
+	Dejkstra_set(0);
 	print_test();
 
 
