@@ -31,16 +31,48 @@ inline std::vector<int> prefix_function(const std::string& sub, const std::strin
 	return ans;
 }
 
+
 std::vector<int> find_subs(const std::string& sub, const std::string& s)
 {
 	auto vec = prefix_function(sub, s);
 	std::vector<int> ans;
-	for(int i = 0;i < vec.size();i++)
+	for (int i = 0; i < vec.size(); i++)
 	{
-		if(vec[i] == sub.length())
+		if (vec[i] == sub.length())
 		{
 			ans.push_back(i - sub.length() + 1);
 		}
 	}
 	return  ans;
+}
+
+
+
+
+
+inline std::vector<int> prefix_function(const std::string& sub, const std::string& s, int& count) {
+	std::vector<int> ans(s.length());
+	int j = 0;
+	if (sub.length() < s.length()) {
+		for (int i = 1; i < static_cast<int>(s.length()); i++) {
+
+			if (j == static_cast<int>(sub.size()))
+				j = ans[j - 1];
+			while (j > 0 && s[i] != sub[j]) { j = ans[j - 1]; count++; } count++;   if (j == 0) count--;
+			if (s[i] == sub[j]) { j++; }  count++;
+			ans[i] = j;
+		}
+	}
+	j = 0;
+	for (int i = 0; i < std::min(sub.length(), s.length()); i++)
+	{
+		if (j == static_cast<int>(sub.size()))
+			j = ans[j - 1];
+		while (j > 0 && s[i] != sub[j]) { j = ans[j - 1] - 1; count++; } count++; if (j == 0) count--;
+		if (j == -1)
+			j++;
+		if (s[i] == sub[j]) { j++; } 	count++;
+		ans[i] = j;
+	}
+	return ans;
 }
