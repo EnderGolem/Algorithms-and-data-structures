@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.32407.337
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zanyt 11", "Zanyt 11\Zanyt 11.vcxproj", "{1B796D8F-58D7-4355-9139-A3A1165BF8EC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestZanyt11", "TestZanyt11\TestZanyt11.vcxproj", "{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{1B796D8F-58D7-4355-9139-A3A1165BF8EC}.Release|x64.Build.0 = Release|x64
 		{1B796D8F-58D7-4355-9139-A3A1165BF8EC}.Release|x86.ActiveCfg = Release|Win32
 		{1B796D8F-58D7-4355-9139-A3A1165BF8EC}.Release|x86.Build.0 = Release|Win32
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Debug|x64.ActiveCfg = Debug|x64
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Debug|x64.Build.0 = Debug|x64
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Debug|x86.ActiveCfg = Debug|Win32
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Debug|x86.Build.0 = Debug|Win32
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Release|x64.ActiveCfg = Release|x64
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Release|x64.Build.0 = Release|x64
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Release|x86.ActiveCfg = Release|Win32
+		{D5FFD7BA-F2AB-4770-9D62-8D0315EE324C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
