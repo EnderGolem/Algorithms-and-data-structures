@@ -44,6 +44,21 @@ namespace TestTree
 
 			Logger::WriteMessage("Ого, кажется всё хорошо!");
 		}
+		TEST_METHOD(TreeAssignmentTests)
+		{
+			//  Тестирование оператора == для дерева
+			ContainerTemplate<int> T1 = { 40,50,30,35,10,75,23,87,68 };
+			ContainerTemplate<int> T2;
+			T2 = T1;
+			Assert::IsTrue(T1 == T2, L"Ошибка в операторе присваивания!");
+			T2.clear();
+			T1 = T2;
+			Assert::IsTrue(T1 == T2, L"Ошибка в операторе присваивания пустых деревьев!");
+			ContainerTemplate<int> T3 = { 40,50,30,35,10,75,23,87,68 };
+			T1 = T3;
+			T2 = std::move(T3);
+			Assert::IsTrue(T1 == T2, L"Ошибка при перемещающем операторе присваивания!");
+		}
 		
 	};
 }

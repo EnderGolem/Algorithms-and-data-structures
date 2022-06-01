@@ -251,7 +251,18 @@ public:
 			this->insert(x);
 		}
 	}
+	AVL(const AVL<T>& avl): m_size(avl.m_size)
+	{
+		make_fictive();
+		for(auto it  = avl.begin();it != avl.end(); ++it)
+			insert(*it);
+	}
 
+	AVL(const AVL<T>&& avl) : m_size(avl.m_size)
+	{
+		m_fictive = avl.m_fictive;
+		avl.m_fictive = nullptr;
+	}
 private:
 	template <class RandomIterator>
 	void ordered_insert(RandomIterator first, RandomIterator last, iterator position) {
@@ -483,6 +494,22 @@ private:
 		}
 	}
 public:
+	AVL<T> &operator=(const AVL<T> & avl)
+	{
+		clear();
+		for (auto it = avl.begin(); it != avl.end(); ++it)
+			insert(*it);
+		return *this;
+	}
+	AVL<T> &operator=(const AVL<T> && avl)
+	{
+		clear();
+		m_size = avl.m_size;
+		m_fictive = avl.m_fictive;
+		m_fictive = nullptr;
+		return *this;
+	}
+
 	~AVL()
 	{
 		if(m_size != 0)
