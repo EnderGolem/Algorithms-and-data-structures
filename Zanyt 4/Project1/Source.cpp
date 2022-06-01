@@ -9,7 +9,7 @@
 #include "BStree.h"
 
 using namespace std;
-
+/*
 template<typename InputIter>
 void print(InputIter first, InputIter last) {
 
@@ -51,4 +51,4 @@ int main() {
 		system("pause");
 	#endif //_WIN32
 	return 0;
-}
+}*/
