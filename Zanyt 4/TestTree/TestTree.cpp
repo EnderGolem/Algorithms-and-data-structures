@@ -29,6 +29,7 @@ namespace TestTree
 			ContainerTemplate<int> Tree2(Tree);
 			Assert::AreEqual(Tree.size(), Tree2.size(), L"Неверно указывается размер после копирования!");
 		}
+		
 		TEST_METHOD(TreesEqualityTest)
 		{
 			//  Тестирование оператора == для дерева
@@ -36,11 +37,13 @@ namespace TestTree
 			Assert::IsTrue(T1 == T2, L"Неверно выполняется сравнение пустых деревьев!");
 			ContainerTemplate<int> Tree = { 40,50,30,35,10,75,23,87,68 };
 			ContainerTemplate<int> Tree2(Tree);
-			Assert::IsTrue(Tree == Tree2, L"Ошибка сравнения деревьев на равенство после копирования!");
-			ContainerTemplate<int> Tree3(Tree.rbegin(), Tree.rend());
+			Assert::IsTrue(Tree == Tree2, L"Ошибка сравнения деревьев на равенство после копирования!");			
+			//TODO ContainerTemplate<int> Tree3(Tree.rbegin(), Tree.rend());
+			ContainerTemplate<int> Tree3(Tree.begin(), Tree.end());
 			Assert::IsTrue(Tree2 == Tree3, L"Ошибка сравнения деревьев на равенство после копирования в обратном порядке!");
 
 			Logger::WriteMessage("Ого, кажется всё хорошо!");
 		}
+		
 	};
 }

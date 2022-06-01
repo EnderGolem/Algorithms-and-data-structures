@@ -10,7 +10,21 @@
 template<typename T, class Compare = std::less<T>, class Allocator = std::allocator<T>>
 class AVL
 {
+private:
+	struct  Node
+	{
+		T data;
+		Node* parent, * left, * right;
+		unsigned char height;
+		Node(T data, Node* parent, Node* left, Node* right, unsigned char height) : data(data), parent(parent), left(left), right(right), height(height)
+		{
+
+		}
+	};
+
 public:
+	using AllocType = typename std::allocator_traits<Allocator>::template rebind_alloc < Node >;
+	AllocType Alc;
 	using key_type = T;
 	using key_compare = Compare;
 	using value_compare = Compare;
@@ -28,21 +42,9 @@ public:
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 	Compare cmp = Compare();
+	
+
 private:
-	struct  Node
-	{
-		T data;
-		Node* parent, * left, * right;
-		unsigned char height;
-		Node(T data, Node* parent, Node* left, Node* right, unsigned char height) : data(data), parent(parent), left(left), right(right), height(height)
-		{
-
-		}
-	};
-
-	using AllocType = typename std::allocator_traits<Allocator>::template rebind_alloc < Node >;
-	AllocType Alc;
-
 	Node* make_fictive()
 	{
 		// Выделяем память по размеру узла без конструирования
@@ -59,19 +61,6 @@ private:
 	}
 	Node* m_fictive;
 	size_t m_size;
-	//  Стандартные контейнеры позволяют указать пользовательский аллокатор, который используется для
-//  выделения и освобождения памяти под узлы (реализует замену операций new/delete). К сожалению, есть 
-//  типичная проблема – при создании дерева с ключами типа T параметром шаблона традиционно указывается
-//  std::allocator<T>, который умеет выделять память под T, а нам нужен аллокатор для выделения/освобождения
-//  памяти под Node, т.е. std::allocator<Node>. Поэтому параметр шаблона аллокатора нужно изменить
-//  с T на Node, что и делается ниже. А вообще это одна из самых малополезных возможностей - обычно мы
-//  пользовательские аллокаторы не пишем, это редкость.
-
-	//  Определяем тип аллокатора для Node (Allocator для T нам не подходит)
-	
-
-
-
 public:
 	//static int iteratorBinaryTree; хз можно ли удалить...
 	class iterator
@@ -243,8 +232,8 @@ public:
 	};
 	iterator begin() const noexcept { return iterator(m_fictive->left, m_fictive); }
 	iterator end() const noexcept { return iterator(m_fictive, m_fictive); }
-	reverse_iterator rbegin() const	noexcept { return reverse_iterator(iterator(m_fictive->right)); }
-	reverse_iterator rend() const noexcept { return reverse_iterator(iterator(m_fictive)); }
+	reverse_iterator rbegin() const	noexcept { return reverse_iterator(iterator(m_fictive->right, m_fictive)); }
+	reverse_iterator rend() const noexcept { return reverse_iterator(iterator(m_fictive, m_fictive)); }
 	AVL() : m_size(0)
 	{
 		make_fictive();
@@ -271,14 +260,18 @@ public:
 	template <class InputIterator>
 	AVL(InputIterator first, InputIterator last, Compare comparator = Compare(), AllocType alloc = AllocType()) : m_fictive(make_fictive()), cmp(comparator), Alc(alloc)
 	{
+		//	TODO возможно надо исправить
 		//  Проверка - какой вид итераторов нам подали на вход
-		if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, typename std::random_access_iterator_tag>::value) {
+		/*if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, typename std::random_access_iterator_tag>::value) {
 			//  Если итератор произвольного доступа, то есть надежда, что диапазон отсортирован
 			//    а даже если и нет - не важно, всё равно попробуем метод деления пополам для вставки
 			ordered_insert(first, last, end());
 		}
-		else
-			std::for_each(first, last, [this](T x) { insert(x); });
+		else*/
+		for (auto fi = first; fi != last; fi++)
+		{
+			insert(*fi);
+		}
 	}
 	void insert(T k)
 	{
@@ -312,7 +305,7 @@ public:
 	}
 
 
-	friend bool operator== (const iterator<T>& tree_1, const iterator<T>& tree_2)
+	friend bool operator== (const AVL<T>& tree_1, const AVL<T>& tree_2)
 	{
 		auto i = tree_1.begin(), ii = tree_2.begin();
 		for (; (i != tree_1.end()) && (ii != tree_2.end()); ++i, ++ii)
@@ -342,6 +335,12 @@ private:
 		Node* q = p->left;
 		p->left = q->right;
 		q->right = p;
+
+		q->parent = p->parent;
+		p->parent = q;
+
+		q->right->parent = p;
+
 		fixheight(p);
 		fixheight(q);
 		return q;
@@ -351,6 +350,12 @@ private:
 		Node* p = q->right;
 		q->right = p->left;
 		p->left = q;
+
+		p->parent = q->parent;
+		q->parent = p;
+
+		q->left->parent = p;
+
 		fixheight(q);
 		fixheight(p);
 		return p;
@@ -358,13 +363,14 @@ private:
 	Node* balance(Node* p) // балансировка узла p
 	{
 		fixheight(p);
-		if (bfactor(p) == 2)
+		int h = bfactor(p);
+		if (h == 2)
 		{
 			if (bfactor(p->right) < 0)
 				p->right = rotateright(p->right);
 			return rotateleft(p);
 		}
-		if (bfactor(p) == -2)
+		if (h == -2)
 		{
 			if (bfactor(p->left) > 0)
 				p->left = rotateleft(p->left);
