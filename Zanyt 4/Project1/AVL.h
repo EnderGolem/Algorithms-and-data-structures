@@ -57,6 +57,13 @@ private:
 		//  Возвращаем указатель на созданную вершину
 		return m_fictive;
 	}
+	void delete_fictive(Node* node) {
+
+		std::allocator_traits<AllocType>::destroy(Alc, &(node->parent));
+		std::allocator_traits<AllocType>::destroy(Alc, &(node->left));
+		std::allocator_traits<AllocType>::destroy(Alc, &(node->right));
+		std::allocator_traits<AllocType>::deallocate(Alc, node, 1);
+	}
 	Node* m_fictive;
 	size_t m_size;
 public:
@@ -266,7 +273,7 @@ public:
 			ordered_insert(first, last, end());
 		}
 		else*/
-		for (auto fi = first; fi != last; fi++)
+		for (auto fi = first; fi != last; ++fi)
 		{
 			insert(*fi);
 		}
@@ -348,7 +355,11 @@ public:
 	{
 		return  m_size;
 	}
-
+	void clear() {
+		Free_nodes(m_fictive->parent);
+		m_size = 0;
+		m_fictive->parent = m_fictive->left = m_fictive->right = m_fictive;
+	}
 
 	friend bool operator== (const AVL<T>& tree_1, const AVL<T>& tree_2)
 	{
@@ -395,6 +406,7 @@ private:
 
 		fixheight(p);
 		fixheight(q);
+		fixroot();
 		return q;
 	}
 	Node* rotateleft(Node* q) // левый поворот вокруг q
@@ -410,6 +422,7 @@ private:
 
 		fixheight(q);
 		fixheight(p);
+		fixroot();
 		return p;
 	}
 	Node* balance(Node* p) // балансировка узла p
@@ -428,7 +441,6 @@ private:
 				p->left = rotateleft(p->left);
 			return rotateright(p);
 		}
-		fixroot();
 		return p; // балансировка не нужна
 	}
 	Node* insert(Node* p, T k) // вставка ключа k в дерево с корнем p
@@ -455,5 +467,26 @@ private:
 				else
 					p->right = insert(p->right, k);
 		return balance(p);
+	}
+	void delete_node(Node* node) {
+	
+		std::allocator_traits<AllocType>::destroy(Alc, &(node->data));
+		delete_fictive(node);
+	}
+	void Free_nodes(Node* node)
+	{
+		if (node != nullptr && node != m_fictive)
+		{
+			Free_nodes(node->left);
+			Free_nodes(node->right);
+			delete_node(node);
+		}
+	}
+public:
+	~AVL()
+	{
+		if(m_size != 0)
+			clear();
+		delete_fictive(m_fictive);
 	}
 };
