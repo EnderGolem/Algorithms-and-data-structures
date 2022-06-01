@@ -1,10 +1,7 @@
 ﻿#pragma once
 #include <algorithm>
 #include <iostream>
-
-
-
-
+#include <queue>
 
 
 template<typename T, class Compare = std::less<T>, class Allocator = std::allocator<T>>
@@ -56,6 +53,7 @@ private:
 		m_fictive->left = m_fictive;
 		std::allocator_traits<AllocType>::construct(Alc, &(m_fictive->right));
 		m_fictive->right = m_fictive;
+		m_fictive->height = 0;
 		//  Возвращаем указатель на созданную вершину
 		return m_fictive;
 	}
@@ -278,12 +276,59 @@ public:
 		m_size++;
 		if (m_fictive->parent == nullptr)
 		{
-			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 1 };
+			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 0};
 			m_fictive->left = m_fictive->parent;
 			m_fictive->right = m_fictive->parent;
 		}
 		else
 			insert(m_fictive->parent, k);
+	}
+	void print() const
+	{
+		for(auto it = begin();it != end(); ++it)
+		{
+			std::cout << *it << ' ';
+		}
+		std::cout << " End \n";
+	}
+
+	void printWithHeights() const
+	{
+		for (auto it = begin(); it != end(); ++it)
+		{
+			std::cout <<"[" << *it << " " <<int(it.m_node->height)<<"]" << ' ';
+		}
+		std::cout << " End \n";
+	}
+	void printByLevels() const
+	{
+		if (m_fictive->parent == nullptr)
+		{
+			std::cout << "null\n"; return;;
+		}
+		std::queue<std::pair<Node*, int>> queue;
+		int level = 0;
+		queue.push(std::make_pair(m_fictive->parent, level));
+		while (!queue.empty())
+		{
+			if (queue.front().second != level)
+			{
+				level++;
+				std::cout << '\n';
+			}
+			auto x = queue.front();
+			queue.pop();
+			std::cout << x.first->data << ' ';
+			if (x.first->left != m_fictive)
+			{
+				queue.push(std::make_pair(x.first->left, x.second + 1));
+			}
+			if (x.first->right != m_fictive)
+			{
+				queue.push(std::make_pair(x.first->right, x.second + 1));
+			}
+		}
+		std::cout << " End" << '\n';
 	}
 
 	//	TODO VASHO: rework
@@ -330,16 +375,23 @@ private:
 		unsigned char hr = height(p->right);
 		p->height = (hl > hr ? hl : hr) + 1;
 	}
-	Node* rotateright(Node* p)
+	void fixroot()
+	{
+		while(m_fictive->parent->parent != nullptr)
+		{
+			m_fictive->parent = m_fictive->parent->parent;
+		}
+	}
+	Node* rotateright(Node* p) 
 	{
 		Node* q = p->left;
 		p->left = q->right;
+		//Change parent 
+		q->right->parent = p;
 		q->right = p;
-
+		//Change parent
 		q->parent = p->parent;
 		p->parent = q;
-
-		q->right->parent = p;
 
 		fixheight(p);
 		fixheight(q);
@@ -349,12 +401,12 @@ private:
 	{
 		Node* p = q->right;
 		q->right = p->left;
+
+		p->left->parent = q;
 		p->left = q;
 
 		p->parent = q->parent;
 		q->parent = p;
-
-		q->left->parent = p;
 
 		fixheight(q);
 		fixheight(p);
@@ -376,6 +428,7 @@ private:
 				p->left = rotateleft(p->left);
 			return rotateright(p);
 		}
+		fixroot();
 		return p; // балансировка не нужна
 	}
 	Node* insert(Node* p, T k) // вставка ключа k в дерево с корнем p
@@ -383,22 +436,22 @@ private:
 
 		if (k < p->data)
 			if (p == m_fictive->left) {
-				p->left = new Node(k, p, m_fictive, m_fictive, 0);
+				p->left = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->left = p->left;
 			}
 			else
 				if (p->left == m_fictive)
-					p->left = new Node(k, p, m_fictive, m_fictive, 0);
+					p->left = new Node(k, p, m_fictive, m_fictive, 1);
 				else
 					p->left = insert(p->left, k);
 		else
 			if (p == m_fictive->right) {
-				p->right = new Node(k, p, m_fictive, m_fictive, 0);
+				p->right = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->right = p->right;
 			}
 			else
 				if (p->right == m_fictive)
-					p->right = new Node(k, p, m_fictive, m_fictive, 0);
+					p->right = new Node(k, p, m_fictive, m_fictive, 1);
 				else
 					p->right = insert(p->right, k);
 		return balance(p);
