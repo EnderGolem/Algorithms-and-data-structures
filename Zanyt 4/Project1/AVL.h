@@ -458,15 +458,36 @@ public:
 
 	bool contains(T data)
 	{
-		return end() != generalBound(data, [](T x, T y)->T {return  x == y; });
+		return end() != generalBound(data, [](T x, T y)->bool {return  x == y; });
 	}
 	iterator lowerBound(T data)
-	{
-		return 	generalBound(data, [](T x, T y)->T {return !cmp(x, y); });
+	{		
+		if (m_fictive->parent == nullptr)
+		{
+			return  end();
+		}
+		auto current = m_fictive->parent;
+		while (current != m_fictive)
+		{
+			if (!cmp(data, current->data))
+				return iterator(current, m_fictive);
+			if (cmp(data,current->data))
+			{
+				current = current->left;
+			}
+			else
+			{
+				current = current->right;
+			}
+		}
+		return  end();
 	}
 	iterator upperBound(T data)
 	{
-		return 	generalBound(data, [this](T x, T y)->T {return !cmp(x, y) && x != y; });
+		auto it = lowerBound(data);
+		if (it != end() && *it == data)
+			++it;
+		return  it;
 	}
 	/*
 	//	TODO VASHO: rework
@@ -763,17 +784,17 @@ private:
 			return  iterator(extremeNode, m_fictive);
 		}
 	}
-	iterator generalBound(T data, T(*compare)(T, T))
+	iterator generalBound(T data, bool(*compare)(T, T))
 	{
 		if (m_fictive->parent == nullptr)
 		{
 			return  end();
 		}
 		auto current = m_fictive->parent;
-		while ( current != m_fictive)
+		while (current != m_fictive)
 		{
 			if (compare(current->data, data))
-				return iterator(current,m_fictive);
+				return iterator(current, m_fictive);
 			if (current->data > data)
 			{
 				current = current->left;

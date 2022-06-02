@@ -68,18 +68,7 @@ namespace TestTree
 			Assert::IsTrue(a.contains(4));
 			Assert::IsTrue(a.contains(7));
 			Assert::IsTrue(!a.contains(8));
-		}/*
-		TEST_METHOD(TreeBoundTests)
-		{
-
-			ContainerTemplate<int> a({ 1,2,3,4,5,6,7 });
-			Assert::IsTrue(*a.lowerBound(1) == 1);
-			Assert::IsTrue(*a.upperBound(1) == 2);
-			Assert::IsTrue(*a.lowerBound(3) == 3);
-			Assert::IsTrue(*a.upperBound(3) == 4);
-			Assert::IsTrue(a.lowerBound(8) == a.end());
-			Assert::IsTrue(a.upperBound(8) == a.end());
-		}*/
+		}
 	};
 	TEST_CLASS(SetTests)
 	{
