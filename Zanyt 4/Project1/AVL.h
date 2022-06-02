@@ -39,7 +39,7 @@ public:
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 	Compare cmp = Compare();
-	
+
 
 private:
 	Node* make_fictive()
@@ -252,7 +252,7 @@ public:
 	AVL(const AVL<T>& avl)
 	{
 		make_fictive();
-		for(auto it  = avl.begin();it != avl.end(); ++it)
+		for (auto it = avl.begin(); it != avl.end(); ++it)
 			insert(*it);
 	}
 	AVL(const AVL<T>&& avl) : m_size(avl.m_size)
@@ -260,14 +260,13 @@ public:
 		m_fictive = avl.m_fictive;
 		avl.m_fictive = nullptr;
 	}
-	AVL(const key_compare & key ) : m_size(0)
+	AVL(const key_compare& key) : m_size(0)
 	{
 		cmp = key;
 		make_fictive();
 	}
-	AVL(const key_compare & key, const allocator_type all ) : m_size(0)
+	AVL(const key_compare& key, const allocator_type all) : m_size(0)
 	{
-		
 		cmp = key;
 		Alc = all;
 		make_fictive();
@@ -300,21 +299,55 @@ public:
 			insert(*fi);
 		}
 	}
-	void insert(T k)
+
+	std::pair<iterator, bool>  insert(T k)
 	{
 		m_size++;
 		if (m_fictive->parent == nullptr)
 		{
-			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 0};
+			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 0 };
 			m_fictive->left = m_fictive->parent;
 			m_fictive->right = m_fictive->parent;
+			return { iterator(m_fictive->parent,m_fictive), true };
 		}
 		else
-			insert(m_fictive->parent, k);
+			return insert(m_fictive->parent, k);
+	}
+
+	void erase(T data)
+	{
+		if (m_fictive->parent == nullptr)
+		{
+			return;
+		}
+		auto current = m_fictive->parent;
+		std::deque< Node*  > qu;
+		while (current != m_fictive)
+		{
+			qu.push_back(current);
+			if (current->data == data)
+			{
+				erase_node(current);
+				return;
+			}
+			if (current->data > data)
+			{
+				current = current->left;
+			}
+			else
+			{
+				current = current->right;
+			}
+		}
+		while (qu.empty())
+		{
+			balance(qu.back());
+			qu.pop_back();
+		}
 	}
 	void print() const
 	{
-		for(auto it = begin();it != end(); ++it)
+		for (auto it = begin(); it != end(); ++it)
 		{
 			std::cout << *it << ' ';
 		}
@@ -325,7 +358,7 @@ public:
 	{
 		for (auto it = begin(); it != end(); ++it)
 		{
-			std::cout <<"[" << *it << " " <<int(it.m_node->height)<<"]" << ' ';
+			std::cout << "[" << *it << " " << int(it.m_node->height) << "]" << ' ';
 		}
 		std::cout << " End \n";
 	}
@@ -418,12 +451,12 @@ private:
 	}
 	void fixroot()
 	{
-		while(m_fictive->parent->parent != nullptr)
+		while (m_fictive->parent->parent != nullptr)
 		{
 			m_fictive->parent = m_fictive->parent->parent;
 		}
 	}
-	Node* rotateright(Node* p) 
+	iterator rotateright(Node* p)
 	{
 		Node* q = p->left;
 		p->left = q->right;
@@ -437,9 +470,9 @@ private:
 		fixheight(p);
 		fixheight(q);
 		fixroot();
-		return q;
+		return iterator(q, m_fictive);
 	}
-	Node* rotateleft(Node* q) // левый поворот вокруг q
+	iterator rotateleft(Node* q) // левый поворот вокруг q
 	{
 		Node* p = q->right;
 		q->right = p->left;
@@ -453,30 +486,31 @@ private:
 		fixheight(q);
 		fixheight(p);
 		fixroot();
-		return p;
+		return iterator(p, m_fictive);
 	}
-	Node* balance(Node* p) // балансировка узла p
+	iterator balance(Node* p) // балансировка узла p
 	{
 		fixheight(p);
 		int h = bfactor(p);
 		if (h == 2)
 		{
 			if (bfactor(p->right) < 0)
-				p->right = rotateright(p->right);
+				p->right = rotateright(p->right).m_node;
 			return rotateleft(p);
 		}
 		if (h == -2)
 		{
 			if (bfactor(p->left) > 0)
-				p->left = rotateleft(p->left);
+				p->left = rotateleft(p->left).m_node;
 			return rotateright(p);
 		}
-		return p; // балансировка не нужна
+		return iterator(p, m_fictive);
 	}
-	Node* insert(Node* p, T k) // вставка ключа k в дерево с корнем p
-	{
 
-		if (cmp(k,p->data))
+	std::pair<iterator, bool> insert(Node* p, T k) // вставка ключа k в дерево с корнем p
+	{
+		std::pair<iterator, bool> dop = {begin(), true};
+		if (cmp(k, p->data))
 			if (p == m_fictive->left) {
 				p->left = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->left = p->left;
@@ -484,9 +518,11 @@ private:
 			else
 				if (p->left == m_fictive)
 					p->left = new Node(k, p, m_fictive, m_fictive, 1);
-				else
-					p->left = insert(p->left, k);
-		else
+				else {
+					dop = insert(p->left, k);
+					p->left = dop.first.m_node;
+				}
+		else if (!cmp(k, p->data) && p->data != k)
 			if (p == m_fictive->right) {
 				p->right = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->right = p->right;
@@ -494,12 +530,161 @@ private:
 			else
 				if (p->right == m_fictive)
 					p->right = new Node(k, p, m_fictive, m_fictive, 1);
-				else
-					p->right = insert(p->right, k);
-		return balance(p);
+				else {
+					dop = insert(p->right, k);
+					p->right = dop.first.m_node;
+				}
+		else if (k == p->data)
+		{
+			return { balance(p),false };
+		}
+		return { balance(p), dop.second };
 	}
+	void deleteNodeWithoutSon(Node* current)
+	{
+		if (current == m_fictive->parent) {
+			m_fictive->parent = nullptr;
+			m_fictive->left = m_fictive;
+			m_fictive->right = m_fictive;
+			return;
+		}
+
+		if (current->parent->right == current)
+			current->parent->right = m_fictive;
+		else
+			current->parent->left = m_fictive;
+		//Check if current end by m_fictive
+		if (m_fictive->left == current) {
+			m_fictive->left = current->parent;
+			current->parent->left = m_fictive;
+		}
+		if (m_fictive->right == current) {
+			m_fictive->right = current->parent;
+			current->parent->right = m_fictive;
+		}
+		delete_node(current);
+		current = nullptr;
+	}
+	void changedParentWhileDelete(Node*& d_current, Node*& d_currentSon)
+	{
+		//Change son
+		if (d_current != m_fictive->parent) {
+			if (d_current->parent->left == d_current)
+				d_current->parent->left = d_currentSon;
+			else
+				d_current->parent->right = d_currentSon;
+		}
+		//Change m_fictive TODO maybe error
+		if (m_fictive->left == d_current)
+			m_fictive->left = d_current->parent;
+		if (m_fictive->right == d_current)
+			m_fictive->right = d_current->parent;
+	}
+	void deleteParentWithOneSon(Node*& current)
+	{
+		Node* root = m_fictive->parent;
+		if (current->left != m_fictive)
+		{
+			if (current != root)
+				current->left->parent = current->parent;
+			changedParentWhileDelete(current, current->left);
+			if (current == root)
+				root = current->left;
+
+		}
+		if (current->right != nullptr && current->right != m_fictive)
+		{
+			if (current != root)
+				current->right->parent = current->parent;
+			changedParentWhileDelete(current, current->right);
+			if (current == root)
+				root = current->right;
+		}
+		delete_node(current);
+		current = nullptr;
+	}
+
+	void erase_node(Node* current)
+	{
+		if (current == m_fictive) return;
+		if (current->left == m_fictive && current->right == m_fictive)
+		{
+			deleteNodeWithoutSon(current);
+		}
+		else if (current->left == m_fictive || current->right == m_fictive)
+		{
+			deleteParentWithOneSon(current);
+		}
+		else
+		{
+			Node* root = m_fictive->parent;
+			Node* extremeNode = current;
+			extremeNode = extremeNode->left;
+			while (extremeNode->right != m_fictive)
+				extremeNode = extremeNode->right;
+
+			//Change son
+			if (current->left == extremeNode) //if we swap the direct son and parent
+			{
+				auto x = extremeNode->left;
+				extremeNode->left = current;
+				current->left = x;
+
+				extremeNode->parent = current->parent;
+				current->parent = extremeNode;
+				extremeNode->right = current->right;
+				current->right = m_fictive;
+
+			}
+			else {
+				std::swap(extremeNode->left, current->left);
+
+				if (current == root) {
+					current->parent = extremeNode->parent;
+					extremeNode->parent = nullptr;
+				}
+				else
+					std::swap(extremeNode->parent, current->parent);
+				extremeNode->right = current->right;
+				current->right = m_fictive;
+			}
+
+
+			//Change parent son
+			if (extremeNode->parent != nullptr)
+				if (extremeNode->parent->right == current)
+					extremeNode->parent->right = extremeNode;
+				else
+					extremeNode->parent->left = extremeNode;
+
+			if (current->parent->right == extremeNode)
+				current->parent->right = current;
+			if (current->parent->left == extremeNode)
+				current->parent->left = current;
+
+			if (current == root)
+			{
+				root = extremeNode;
+			}
+			if (extremeNode == m_fictive->left)
+				m_fictive->left = current;
+			//Delete if current is leaf or has one son.
+			if (current->left == m_fictive && current->right == m_fictive)
+			{
+				deleteNodeWithoutSon(current);
+			}
+			else if (current->left == m_fictive || current->right == m_fictive)
+			{
+				deleteParentWithOneSon(current);
+			}
+		}
+	}
+
+
+
+
 	void delete_node(Node* node) {
-	
+
 		std::allocator_traits<AllocType>::destroy(Alc, &(node->data));
 		delete_fictive(node);
 	}
@@ -513,7 +698,7 @@ private:
 		}
 	}
 public:
-	AVL<T> &operator=(const AVL<T> & avl)
+	AVL<T>& operator=(const AVL<T>& avl)
 	{
 		clear();
 		m_fictive->parent = nullptr;
@@ -521,7 +706,7 @@ public:
 			insert(*it);
 		return *this;
 	}
-	AVL<T> &operator=(AVL<T> && avl)
+	AVL<T>& operator=(AVL<T>&& avl)
 	{
 		clear();
 		m_size = avl.m_size;
@@ -532,7 +717,7 @@ public:
 
 	~AVL()
 	{
-		if(m_fictive != nullptr)
+		if (m_fictive != nullptr)
 			clear();
 		delete_fictive(m_fictive);
 	}
