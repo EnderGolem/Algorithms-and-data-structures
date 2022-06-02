@@ -60,6 +60,26 @@ namespace TestTree
 			Assert::IsTrue(T1 == T2, L"Ошибка при перемещающем операторе присваивания!");
 		}
 
+		TEST_METHOD(TreeContaintsTests)
+		{
+
+			ContainerTemplate<int> a({ 1,2,3,4,5,6,7 });
+			Assert::IsTrue(a.contains(1));
+			Assert::IsTrue(a.contains(4));
+			Assert::IsTrue(a.contains(7));
+			Assert::IsTrue(!a.contains(8));
+		}/*
+		TEST_METHOD(TreeBoundTests)
+		{
+
+			ContainerTemplate<int> a({ 1,2,3,4,5,6,7 });
+			Assert::IsTrue(*a.lowerBound(1) == 1);
+			Assert::IsTrue(*a.upperBound(1) == 2);
+			Assert::IsTrue(*a.lowerBound(3) == 3);
+			Assert::IsTrue(*a.upperBound(3) == 4);
+			Assert::IsTrue(a.lowerBound(8) == a.end());
+			Assert::IsTrue(a.upperBound(8) == a.end());
+		}*/
 	};
 	TEST_CLASS(SetTests)
 	{
@@ -131,7 +151,37 @@ namespace TestTree
 			//Assert::IsTrue(*p_crit == 'c' && *--(p_crit = v4.rend()) == 'a', L"Const reverse iterator не корректен?");
 		}
 
+		TEST_METHOD(SetInsertEraseTests)
+		{
+			char carr[] = "abc", carr2[] = "def";
+			Mycont v0;
+			Myal<char> al = v0.get_allocator();
+			Mypred<char> pred;
+			Mycont v0a(pred);
 
-	
+			Mycont v1(carr, carr + 3);
+			Mycont v2(carr, carr + 3, pred);
+			Mycont v3(carr, carr + 3, pred, al);
+			const Mycont v4(carr, carr + 3);
+			v0 = v4;
+
+
+			v0.clear();
+			std::pair<Mycont::iterator, bool> pib = v0.insert('d');
+			Assert::IsTrue(*pib.first == 'd' && pib.second);
+			Assert::IsTrue(*--v0.end() == 'd');
+			pib = v0.insert('d');
+			Assert::IsTrue(*pib.first == 'd' && !pib.second);
+			Assert::IsTrue(*v0.insert(v0.begin(), 'e') == 'e');
+			v0.insert(carr, carr + 3);
+			Assert::IsTrue(v0.size() == 5 && *v0.begin() == 'a');
+			v0.insert(carr2, carr2 + 3);
+			Assert::IsTrue(v0.size() == 6 && *--v0.end() == 'f');
+			Assert::IsTrue(*v0.erase(v0.begin()) == 'b' && v0.size() == 5);
+			Assert::IsTrue(*v0.erase(v0.begin(), ++v0.begin()) == 'c' && v0.size() == 4);
+			Assert::IsTrue(v0.erase('x') == 0 && v0.erase('e') == 1);
+		}
+
+
 	};
 }

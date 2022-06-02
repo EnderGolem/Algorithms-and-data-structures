@@ -56,8 +56,8 @@ private:
 		return m_fictive;
 	}
 	void delete_fictive(Node* node) {
-
-		std::allocator_traits<AllocType>::destroy(Alc, &(node->parent));
+		if (node != m_fictive)
+			std::allocator_traits<AllocType>::destroy(Alc, &(node->parent));
 		std::allocator_traits<AllocType>::destroy(Alc, &(node->left));
 		std::allocator_traits<AllocType>::destroy(Alc, &(node->right));
 		std::allocator_traits<AllocType>::deallocate(Alc, node, 1);
@@ -299,27 +299,58 @@ public:
 			insert(*fi);
 		}
 	}
-
 	std::pair<iterator, bool>  insert(T k)
 	{
-		m_size++;
 		if (m_fictive->parent == nullptr)
 		{
+			m_size++;
 			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 0 };
 			m_fictive->left = m_fictive->parent;
 			m_fictive->right = m_fictive->parent;
 			return { iterator(m_fictive->parent,m_fictive), true };
 		}
-		else
-			return insert(m_fictive->parent, k);
+		else {
+			auto r = insert(m_fictive->parent, k);
+			if (r.second) {
+				m_size++;
+				return { ++r.first,r.second };
+			}
+			return  { r.first,r.second };
+		}
 	}
-
-	void erase(T data)
+	template <class InputIterator>
+	void insert(InputIterator first, InputIterator last)
+	{
+		for (auto fi = first; fi != last; ++fi)
+		{
+			insert(*fi);
+		}
+	}
+	iterator  insert(iterator hint, T k)
 	{
 		if (m_fictive->parent == nullptr)
 		{
-			return;
+			m_size++;
+			m_fictive->parent = new Node{ k ,nullptr,m_fictive,m_fictive, 0 };
+			m_fictive->left = m_fictive->parent;
+			m_fictive->right = m_fictive->parent;
+			return  iterator(m_fictive->parent, m_fictive);
 		}
+		else {
+			auto r = insert(m_fictive->parent, k);
+			if (r.second)
+				m_size++;
+			return ++r.first;
+		}
+	}
+
+	int erase(T data)
+	{
+		if (m_fictive->parent == nullptr)
+		{
+			return 0;
+		}
+		auto next = iterator(m_fictive->parent, m_fictive);
 		auto current = m_fictive->parent;
 		std::deque< Node*  > qu;
 		while (current != m_fictive)
@@ -327,8 +358,8 @@ public:
 			qu.push_back(current);
 			if (current->data == data)
 			{
-				erase_node(current);
-				return;
+				next = erase_node(current);
+				break;
 			}
 			if (current->data > data)
 			{
@@ -339,11 +370,43 @@ public:
 				current = current->right;
 			}
 		}
+
 		while (qu.empty())
 		{
 			balance(qu.back());
 			qu.pop_back();
 		}
+		if (next == begin())
+			return  0;
+		m_size--;
+		return  1;
+	}
+
+	template <class InputIterator>
+	iterator erase(InputIterator itr)
+	{
+		m_size--;
+		auto d = erase_node(itr.m_node);
+		auto g = d.m_node;
+		while (g->parent != nullptr)
+		{
+			balance(g);
+			g = g->parent;
+		}
+		return  d;
+	}
+	//TODO effective
+	template <class InputIterator>
+	iterator erase(InputIterator first, InputIterator last)
+	{
+		auto next = last;
+		for (auto it = first; it != last; )
+		{
+			auto dop = it;
+			++it;
+			erase(dop);
+		}
+		return  next;
 	}
 	void print() const
 	{
@@ -393,6 +456,19 @@ public:
 		std::cout << " End" << '\n';
 	}
 
+	bool contains(T data)
+	{
+		return end() != generalBound(data, [](T x, T y)->T {return  x == y; });
+	}
+	iterator lowerBound(T data)
+	{
+		return 	generalBound(data, [](T x, T y)->T {return !cmp(x, y); });
+	}
+	iterator upperBound(T data)
+	{
+		return 	generalBound(data, [this](T x, T y)->T {return !cmp(x, y) && x != y; });
+	}
+	/*
 	//	TODO VASHO: rework
 	//  Рекурсивное клонирование дерева (не включая фиктивную вершину)
 	//  Идея так себе - вроде пользуемся стандартной вставкой, хотя явное клонирование вершин было бы лучше
@@ -406,6 +482,7 @@ public:
 		clone(from->right, other_dummy);
 		clone(from->left, other_dummy);
 	}
+	*/
 	size_t size()
 	{
 		return  m_size;
@@ -422,6 +499,7 @@ public:
 		Free_nodes(m_fictive->parent);
 		m_size = 0;
 		m_fictive->parent = m_fictive->left = m_fictive->right = m_fictive;
+		m_fictive->parent = nullptr;
 	}
 
 	friend bool operator== (const AVL<T>& tree_1, const AVL<T>& tree_2)
@@ -509,7 +587,7 @@ private:
 
 	std::pair<iterator, bool> insert(Node* p, T k) // вставка ключа k в дерево с корнем p
 	{
-		std::pair<iterator, bool> dop = {begin(), true};
+		std::pair<iterator, bool> dop = { begin(), true };
 		if (cmp(k, p->data))
 			if (p == m_fictive->left) {
 				p->left = new Node(k, p, m_fictive, m_fictive, 1);
@@ -540,15 +618,16 @@ private:
 		}
 		return { balance(p), dop.second };
 	}
-	void deleteNodeWithoutSon(Node* current)
+	iterator deleteNodeWithoutSon(Node* current)
 	{
 		if (current == m_fictive->parent) {
 			m_fictive->parent = nullptr;
 			m_fictive->left = m_fictive;
 			m_fictive->right = m_fictive;
-			return;
+			return begin();
 		}
-
+		auto next = iterator(current, m_fictive);
+		++next;
 		if (current->parent->right == current)
 			current->parent->right = m_fictive;
 		else
@@ -564,6 +643,7 @@ private:
 		}
 		delete_node(current);
 		current = nullptr;
+		return next;
 	}
 	void changedParentWhileDelete(Node*& d_current, Node*& d_currentSon)
 	{
@@ -580,9 +660,11 @@ private:
 		if (m_fictive->right == d_current)
 			m_fictive->right = d_current->parent;
 	}
-	void deleteParentWithOneSon(Node*& current)
+	iterator deleteParentWithOneSon(Node*& current)
 	{
 		Node* root = m_fictive->parent;
+		auto next = iterator(current, m_fictive);
+		++next;
 		if (current->left != m_fictive)
 		{
 			if (current != root)
@@ -592,7 +674,7 @@ private:
 				root = current->left;
 
 		}
-		if (current->right != nullptr && current->right != m_fictive)
+		if (current->right != m_fictive)
 		{
 			if (current != root)
 				current->right->parent = current->parent;
@@ -602,18 +684,19 @@ private:
 		}
 		delete_node(current);
 		current = nullptr;
+		return  next;
 	}
 
-	void erase_node(Node* current)
+	iterator erase_node(Node* current)
 	{
-		if (current == m_fictive) return;
+		if (current == m_fictive) return begin();
 		if (current->left == m_fictive && current->right == m_fictive)
 		{
-			deleteNodeWithoutSon(current);
+			return  deleteNodeWithoutSon(current);
 		}
 		else if (current->left == m_fictive || current->right == m_fictive)
 		{
-			deleteParentWithOneSon(current);
+			return  deleteParentWithOneSon(current);
 		}
 		else
 		{
@@ -677,10 +760,31 @@ private:
 			{
 				deleteParentWithOneSon(current);
 			}
+			return  iterator(extremeNode, m_fictive);
 		}
 	}
-
-
+	iterator generalBound(T data, T(*compare)(T, T))
+	{
+		if (m_fictive->parent == nullptr)
+		{
+			return  end();
+		}
+		auto current = m_fictive->parent;
+		while ( current != m_fictive)
+		{
+			if (compare(current->data, data))
+				return iterator(current,m_fictive);
+			if (current->data > data)
+			{
+				current = current->left;
+			}
+			else
+			{
+				current = current->right;
+			}
+		}
+		return  end();
+	}
 
 
 	void delete_node(Node* node) {
