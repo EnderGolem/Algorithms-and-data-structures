@@ -171,6 +171,53 @@ namespace TestTree
 			Assert::IsTrue(v0.erase('x') == 0 && v0.erase('e') == 1);
 		}
 
+		TEST_METHOD(SetSwapAndCompTests)
+		{
+			char carr[] = "abc", carr2[] = "def";
+			Mycont v0;
+			Mycont v1(carr, carr + 3);
+
+			v0.clear();
+			std::pair<Mycont::iterator, bool> pib = v0.insert('d');
+			pib = v0.insert('d');
+			v0.insert(v0.begin(), 'e');
+			v0.insert(carr, carr + 3);
+			v0.insert(carr2, carr2 + 3);
+			v0.erase(v0.begin());
+			v0.erase(v0.begin(), ++v0.begin());
+			v0.erase('x');
+			v0.erase('e');
+			v0.clear();
+			Assert::IsTrue(v0.empty());
+			v0.swap(v1);
+			Assert::IsTrue(!v0.empty() && v1.empty());
+			std::swap(v0, v1);
+			Assert::IsTrue(v0.empty() && !v1.empty());
+			Assert::IsTrue(v1 == v1 && v0 < v1, L"Сравнение множеств некорректно!");
+			Assert::IsTrue(v0 != v1 && v1 > v0, L"Сравнение множеств некорректно!");
+			Assert::IsTrue(v0 <= v1 && v1 >= v0, L"Сравнение множеств некорректно!");
+		}
+
+		TEST_METHOD(SetComparatorTests)
+		{
+			Mycont v0;
+			Assert::IsTrue(v0.key_comp()('a', 'c') && !v0.key_comp()('a', 'a'), L"Некорректный компаратор!");
+			Assert::IsTrue(v0.value_comp()('a', 'c') && !v0.value_comp()('a', 'a'), L"Некорректный компаратор!");
+		}
+
+		TEST_METHOD(SetAlgTests)
+		{
+			char carr[] = "abc";
+			const Mycont v4(carr, carr + 3);
+
+			Assert::IsTrue(*v4.find('b') == 'b');
+			Assert::IsTrue(v4.count('x') == 0 && v4.count('b') == 1);
+			Assert::IsTrue(*v4.lowerBound('a') == 'a', L"Метод lower_bound");
+			Assert::IsTrue(*v4.upperBound('a') == 'b', L"Метод upper_bound");
+			std::pair<Mycont::const_iterator, Mycont::const_iterator> pcc = v4.equal_range('a');
+			Assert::IsTrue(*pcc.first == 'a' && *pcc.second == 'b', L"Ошибка метода equal_range");
+		}
+
 
 	};
 }

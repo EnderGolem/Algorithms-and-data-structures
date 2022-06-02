@@ -64,8 +64,9 @@ private:
 	}
 	Node* m_fictive;
 	size_t m_size;
+	int m_count_rotate;
 public:
-	//static int iteratorBinaryTree; хз можно ли удалить...
+	//static int iteratorBinaryTree; возможно можно удалить...
 	class iterator
 	{
 		friend  class AVL;
@@ -78,48 +79,7 @@ public:
 		{
 			return m_node;
 		}
-		//TODO сделай чтобы возвращался итератор
-		iterator Parent() const noexcept
-		{
-			return  m_node->parent;
-		}
-		iterator Left() const noexcept
-		{
-			return  m_node->left;
-		}
-		iterator Right() const noexcept
-		{
-			return  m_node->right;
-		}
-		bool IsLeft(Node* left) const noexcept
-		{
-			return  left == m_node->left;
-		}
-		//  Является ли узел дерева правым у своего родителя
-		bool IsRight(Node* right) const noexcept
-		{
-			return  right == m_node->right;
-		}
-		//  Поиск «самого левого» элемента
-		iterator GetMin() {
-			Node* fake = m_node;
-			//TODO возможно ошибка из-за вершины
-			while (fake != m_fictive)
-			{
-				fake = fake->left;
-			}
-			return  fake;
-		}
 
-		iterator GetMax() {
-			Node* fake = m_node;
-			//TODO возможно ошибка из-за вершины
-			while (fake != m_fictive)
-			{
-				fake = fake->right;
-			}
-			return  fake;
-		}
 	public:
 		//  Определяем стандартные типы в соответствии с требованиями стандарта к двунаправленным итераторам
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -150,7 +110,7 @@ public:
 			{
 				m_node = m_node->right;
 				//if (m_node == it_fictive)
-				//	return  *this;
+				// return  *this;
 				while (m_node->left != it_fictive)
 				{
 					m_node = m_node->left;
@@ -192,7 +152,7 @@ public:
 			{
 				m_node = m_node->left;
 				//if (m_node == it_fictive)
-				//	return  *this;
+				// return  *this;
 				while (m_node->right != it_fictive)
 				{
 					m_node = m_node->right;
@@ -235,7 +195,7 @@ public:
 	};
 	iterator begin() const noexcept { return iterator(m_fictive->left, m_fictive); }
 	iterator end() const noexcept { return iterator(m_fictive, m_fictive); }
-	reverse_iterator rbegin() const	noexcept { return reverse_iterator(iterator(m_fictive->right, m_fictive)); }
+	reverse_iterator rbegin() const noexcept { return reverse_iterator(iterator(m_fictive->right, m_fictive)); }
 	reverse_iterator rend() const noexcept { return reverse_iterator(iterator(m_fictive, m_fictive)); }
 	AVL() : m_size(0)
 	{
@@ -255,7 +215,7 @@ public:
 		for (auto it = avl.begin(); it != avl.end(); ++it)
 			insert(*it);
 	}
-	AVL(const AVL<T>&& avl) : m_size(avl.m_size)
+	AVL(AVL<T>&& avl) : m_size(avl.m_size)
 	{
 		m_fictive = avl.m_fictive;
 		avl.m_fictive = nullptr;
@@ -284,14 +244,6 @@ public:
 	template <class InputIterator>
 	AVL(InputIterator first, InputIterator last, Compare comparator = Compare(), AllocType alloc = AllocType()) : m_fictive(make_fictive()), m_size(0), cmp(comparator), Alc(alloc)
 	{
-		//	TODO возможно надо исправить
-		//  Проверка - какой вид итераторов нам подали на вход
-		/*if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, typename std::random_access_iterator_tag>::value) {
-			//  Если итератор произвольного доступа, то есть надежда, что диапазон отсортирован
-			//    а даже если и нет - не важно, всё равно попробуем метод деления пополам для вставки
-			ordered_insert(first, last, end());
-		}
-		else*/
 		cmp = comparator;
 		Alc = alloc;
 		for (auto fi = first; fi != last; ++fi)
@@ -395,7 +347,6 @@ public:
 		}
 		return  d;
 	}
-	//TODO effective
 	template <class InputIterator>
 	iterator erase(InputIterator first, InputIterator last)
 	{
@@ -456,54 +407,47 @@ public:
 		std::cout << " End" << '\n';
 	}
 
-	bool contains(T data)
+	bool contains(T data) const
 	{
 		return end() != generalBound(data, [](T x, T y)->bool {return  x == y; });
 	}
-	iterator lowerBound(T data)
-	{		
-		if (m_fictive->parent == nullptr)
-		{
-			return  end();
-		}
-		auto current = m_fictive->parent;
-		while (current != m_fictive)
-		{
-			if (!cmp(data, current->data))
-				return iterator(current, m_fictive);
-			if (cmp(data,current->data))
-			{
-				current = current->left;
-			}
-			else
-			{
-				current = current->right;
-			}
-		}
-		return  end();
+	iterator find(T data) const
+	{
+		return generalBound(data, [](T x, T y)->bool {return  x == y; });
 	}
-	iterator upperBound(T data)
+	int count(T data) const
+	{
+		if (contains(data))
+			return 1;
+		return 0;
+	}
+	iterator lowerBound(T data) const
+	{
+
+		for (auto it = begin(); it != end(); ++it)
+		{
+			if (!cmp(*it, data))
+			{
+				return it;
+			}
+		}
+		return end();
+	}
+	iterator upperBound(T data) const
 	{
 		auto it = lowerBound(data);
 		if (it != end() && *it == data)
 			++it;
 		return  it;
 	}
-	/*
-	//	TODO VASHO: rework
-	//  Рекурсивное клонирование дерева (не включая фиктивную вершину)
-	//  Идея так себе - вроде пользуемся стандартной вставкой, хотя явное клонирование вершин было бы лучше
-	void clone(Node* from, Node* other_dummy)
+	std::pair<const_iterator, const_iterator> equal_range(T data) const
 	{
-		if (from == other_dummy)
-			return;
-		//	клонирование через insert? оно же будет переразвешиваться
-		// Это ещё и рекурсивный проход в ширину, выраждает дево в список
-		insert(from->data);
-		clone(from->right, other_dummy);
-		clone(from->left, other_dummy);
+		return { lowerBound(data), upperBound(data) };
 	}
-	*/
+	void swap(AVL& avl)
+	{
+		std::swap(avl, *this);
+	}
 	size_t size()
 	{
 		return  m_size;
@@ -516,9 +460,28 @@ public:
 	{
 		return Alc;
 	}
+	Compare key_comp()
+	{
+		return cmp;
+	}
+	Compare value_comp()
+	{
+		return cmp;
+	}
+	int get_count_rotate()
+	{
+		return m_count_rotate;
+	}
+	void clear_rotate()
+	{
+		m_count_rotate = 0;
+	}
 	void clear() {
-		Free_nodes(m_fictive->parent);
 		m_size = 0;
+		m_count_rotate = 0;
+		if (m_fictive == nullptr)
+			return;
+		Free_nodes(m_fictive->parent);
 		m_fictive->parent = m_fictive->left = m_fictive->right = m_fictive;
 		m_fictive->parent = nullptr;
 	}
@@ -557,9 +520,10 @@ private:
 	}
 	iterator rotateright(Node* p)
 	{
+		m_count_rotate++;
 		Node* q = p->left;
 		p->left = q->right;
-		//Change parent 
+		//Change parent
 		q->right->parent = p;
 		q->right = p;
 		//Change parent
@@ -571,8 +535,9 @@ private:
 		fixroot();
 		return iterator(q, m_fictive);
 	}
-	iterator rotateleft(Node* q) // левый поворот вокруг q
+	iterator rotateleft(Node* q)
 	{
+		m_count_rotate++;
 		Node* p = q->right;
 		q->right = p->left;
 
@@ -587,7 +552,7 @@ private:
 		fixroot();
 		return iterator(p, m_fictive);
 	}
-	iterator balance(Node* p) // балансировка узла p
+	iterator balance(Node* p)
 	{
 		fixheight(p);
 		int h = bfactor(p);
@@ -606,7 +571,7 @@ private:
 		return iterator(p, m_fictive);
 	}
 
-	std::pair<iterator, bool> insert(Node* p, T k) // вставка ключа k в дерево с корнем p
+	std::pair<iterator, bool> insert(Node* p, T k)
 	{
 		std::pair<iterator, bool> dop = { begin(), true };
 		if (cmp(k, p->data))
@@ -621,7 +586,7 @@ private:
 					dop = insert(p->left, k);
 					p->left = dop.first.m_node;
 				}
-		else if (!cmp(k, p->data) && p->data != k)
+		else if (!cmp(k, p->data) && p->data != k) //VASHO
 			if (p == m_fictive->right) {
 				p->right = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->right = p->right;
@@ -675,7 +640,7 @@ private:
 			else
 				d_current->parent->right = d_currentSon;
 		}
-		//Change m_fictive TODO maybe error
+		//Change m_fictive TODO
 		if (m_fictive->left == d_current)
 			m_fictive->left = d_current->parent;
 		if (m_fictive->right == d_current)
@@ -784,7 +749,7 @@ private:
 			return  iterator(extremeNode, m_fictive);
 		}
 	}
-	iterator generalBound(T data, bool(*compare)(T, T))
+	iterator generalBound(T data, bool(*compare)(T, T)) const
 	{
 		if (m_fictive->parent == nullptr)
 		{
@@ -847,3 +812,48 @@ public:
 		delete_fictive(m_fictive);
 	}
 };
+
+
+template <class Key, class Compare, class Allocator>
+bool operator==(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+	typename AVL<Key, Compare, Allocator>::const_iterator it1{ x.begin() }, it2{ y.begin() };
+	while (it1 != x.end() && it2 != y.end() && *it1 == *it2) {
+		++it1; ++it2;
+	}
+
+	return it1 == x.end() && it2 == y.end();
+}
+
+template <class Key, class Compare, class Allocator>
+bool operator<(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+
+	typename AVL<Key, Compare, Allocator>::const_iterator it1{ x.begin() }, it2{ y.begin() };
+	while (it1 != x.end() && it2 != y.end() && *it1 == *it2) {
+		++it1; ++it2;
+	}
+
+	if (it1 == x.end())
+		return it2 != y.end();
+
+	return it2 != y.end() && *it1 < *it2;
+}
+
+template <class Key, class Compare, class Allocator>
+bool operator!=(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+	return !(x == y);
+}
+
+template <class Key, class Compare, class Allocator>
+bool operator>(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+	return y < x;
+}
+
+template <class Key, class Compare, class Allocator>
+bool operator>=(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+	return !(x < y);
+}
+
+template <class Key, class Compare, class Allocator>
+bool operator<=(const AVL<Key, Compare, Allocator>& x, const AVL<Key, Compare, Allocator>& y) {
+	return   !(y < x);
+}
