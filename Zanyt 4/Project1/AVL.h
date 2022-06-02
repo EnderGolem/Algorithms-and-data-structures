@@ -44,9 +44,7 @@ public:
 private:
 	Node* make_fictive()
 	{
-		// Выделяем память по размеру узла без конструирования
 		m_fictive = Alc.allocate(1);
-		//  Все поля, являющиеся указателями на узлы (left, right, parent) инициализируем и обнуляем
 		std::allocator_traits<AllocType>::construct(Alc, &(m_fictive->parent));
 		m_fictive->parent = nullptr;
 		std::allocator_traits<AllocType>::construct(Alc, &(m_fictive->left));
@@ -251,17 +249,28 @@ public:
 			this->insert(x);
 		}
 	}
-	AVL(const AVL<T>& avl): m_size(avl.m_size)
+	AVL(const AVL<T>& avl)
 	{
 		make_fictive();
 		for(auto it  = avl.begin();it != avl.end(); ++it)
 			insert(*it);
 	}
-
 	AVL(const AVL<T>&& avl) : m_size(avl.m_size)
 	{
 		m_fictive = avl.m_fictive;
 		avl.m_fictive = nullptr;
+	}
+	AVL(const key_compare & key ) : m_size(0)
+	{
+		cmp = key;
+		make_fictive();
+	}
+	AVL(const key_compare & key, const allocator_type all ) : m_size(0)
+	{
+		
+		cmp = key;
+		Alc = all;
+		make_fictive();
 	}
 private:
 	template <class RandomIterator>
@@ -274,7 +283,7 @@ private:
 	}
 public:
 	template <class InputIterator>
-	AVL(InputIterator first, InputIterator last, Compare comparator = Compare(), AllocType alloc = AllocType()) : m_fictive(make_fictive()), cmp(comparator), Alc(alloc)
+	AVL(InputIterator first, InputIterator last, Compare comparator = Compare(), AllocType alloc = AllocType()) : m_fictive(make_fictive()), m_size(0), cmp(comparator), Alc(alloc)
 	{
 		//	TODO возможно надо исправить
 		//  Проверка - какой вид итераторов нам подали на вход
@@ -284,6 +293,8 @@ public:
 			ordered_insert(first, last, end());
 		}
 		else*/
+		cmp = comparator;
+		Alc = alloc;
 		for (auto fi = first; fi != last; ++fi)
 		{
 			insert(*fi);
@@ -365,6 +376,14 @@ public:
 	size_t size()
 	{
 		return  m_size;
+	}
+	bool empty()
+	{
+		return  m_size == 0;
+	}
+	std::allocator<T> get_allocator()
+	{
+		return Alc;
 	}
 	void clear() {
 		Free_nodes(m_fictive->parent);
@@ -457,7 +476,7 @@ private:
 	Node* insert(Node* p, T k) // вставка ключа k в дерево с корнем p
 	{
 
-		if (k < p->data)
+		if (cmp(k,p->data))
 			if (p == m_fictive->left) {
 				p->left = new Node(k, p, m_fictive, m_fictive, 1);
 				m_fictive->left = p->left;
@@ -497,22 +516,23 @@ public:
 	AVL<T> &operator=(const AVL<T> & avl)
 	{
 		clear();
+		m_fictive->parent = nullptr;
 		for (auto it = avl.begin(); it != avl.end(); ++it)
 			insert(*it);
 		return *this;
 	}
-	AVL<T> &operator=(const AVL<T> && avl)
+	AVL<T> &operator=(AVL<T> && avl)
 	{
 		clear();
 		m_size = avl.m_size;
 		m_fictive = avl.m_fictive;
-		m_fictive = nullptr;
+		avl.m_fictive = nullptr;
 		return *this;
 	}
 
 	~AVL()
 	{
-		if(m_size != 0)
+		if(m_fictive != nullptr)
 			clear();
 		delete_fictive(m_fictive);
 	}

@@ -1,19 +1,25 @@
 #include <iostream>
 #include "AVL.h"
 
+using namespace  std;
 template<typename T> using Myal = std::allocator<T>;
 template<typename T> using Mypred = std::less<T>;
-using namespace  std;
+
+//  Для того, чтобы выполнить тестирование одного из указанных контейнеров (std::set или Binary_Tree_Search)
+//    должна быть раскомментирована одна из следующих строк:
+//template<typename T> using ContainerTemplate = std::set<T, Mypred<T>, Myal<T>>;
 template<typename T> using ContainerTemplate = AVL<T, Mypred<T>, Myal<T>>;
+
+using Mycont = ContainerTemplate<char>;
 int main()
 {
-	ContainerTemplate<int> Tree = { 40,50,30 };
-	ContainerTemplate<int> Tree2(Tree);
-	ContainerTemplate<int> Tree3(Tree.begin(), Tree.end());
-	cout << (Tree == Tree3) << '\n';
+	char carr[] = "abc", carr2[] = "def";
+	Mycont v0;
+	Myal<char> al = v0.get_allocator();
+	Mypred<char> pred;
+	Mycont v0a(pred);
 
-	Tree3.clear();
-
-
+	Mycont v1(carr, carr + 3);
+	v1.printWithHeights();
 
 }
