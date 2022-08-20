@@ -1,2 +1,3 @@
 # Algorithms-and-data-structures
-Laboratory course algorithms and data structures
+Решение задач из курса Алгоритмы и структуры данных.
+Описание каждой из задач находиться в закрытых issues с соответствующим названием.
